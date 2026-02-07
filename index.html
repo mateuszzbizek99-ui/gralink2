@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Tropikalna Przygoda - EDYCJA TROLLA v9</title>
+    <title>Tropikalna Przygoda - EDYCJA TROLLA v10</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { 
@@ -63,7 +63,7 @@
         <div id="screen-intro" class="game-screen active">
             <div class="mb-6 text-6xl">🌴🐒🥥</div>
             <h1 class="text-4xl font-black uppercase italic mb-2 tracking-tighter text-yellow-400 jungle-font">Małpi Interes</h1>
-            <p class="text-yellow-100 text-sm mb-8">Zdobądź skarb... o ile nie masz palców z drewna! <br><span class="text-xs opacity-50 italic">Jeden błąd i wracasz na sam start.</span></p>
+            <p class="text-yellow-100 text-sm mb-8">Zdobądź skarb... o ile nie masz palców z drewna! <br><span class="text-xs opacity-50 italic">Pamiętaj: błąd cofa Cię na sam start.</span></p>
             <button onclick="initLvl1()" class="w-full bg-green-600 hover:bg-green-500 text-white font-black py-5 rounded-3xl active:scale-95 transition-all uppercase shadow-lg border-b-8 border-green-800">
                 WCHODZĘ W TO! 🥥
             </button>
@@ -96,7 +96,7 @@
 
         <!-- 3. Poziom 3: Refleks -->
         <div id="screen-lvl3" class="game-screen">
-            <p class="text-xs mb-4 text-yellow-200 uppercase font-black">ZBIERZ 15 MONET - SZYBKO!</p>
+            <p class="text-xs mb-4 text-yellow-200 uppercase font-black">ZBIERZ 15 MONET - MASZ 15 SEKUND!</p>
             <div id="tap-arena" class="relative w-full aspect-square bg-orange-200 rounded-3xl border-4 border-yellow-800 overflow-hidden shadow-inner">
                 <div id="mole" onclick="moleHit()" class="absolute w-12 h-12 rounded-full hidden flex items-center justify-center text-3xl cursor-pointer">
                     🪙
@@ -120,10 +120,10 @@
             <h2 class="text-2xl font-black text-orange-400 italic mb-2 uppercase text-center">SKRAJNA ROZPACZ</h2>
             <p class="text-yellow-100 text-sm mb-6 leading-relaxed">
                 To Twoja 10. porażka. 🐒 Widok Twoich starań sprawia, że małpom pękają serca (i brzuchy ze śmiechu). <br><br>
-                Masz ten skarb, ale obiecaj, że nie powiesz nikomu, jak bardzo jesteś słaby.
+                Masz ten link, ale obiecaj, że nie powiesz nikomu, jak bardzo jesteś słaby.
             </p>
             <a href="https://drive.google.com/file/d/1Khm9J8Na9T4lh5QrqpTfPqkvNQveNmTp/view?usp=sharing" class="block w-full bg-orange-600 text-white font-black py-4 rounded-2xl text-center border-b-4 border-orange-800">
-                DAWAJ SKARB I UCIEKAM 🍌
+                DAWAJ LINK I UCIEKAM 🍌
             </a>
         </div>
 
@@ -149,7 +149,7 @@
         let attemptsLeft = 5;
         let launched = false;
         let isDragging = false;
-        let gameTime3 = 12.0;
+        let gameTime3 = 15.0; // Zwiększono czas z 12 do 15 sekund
         let molesHit = 0;
 
         function show(id) {
@@ -190,9 +190,10 @@
                 "To było bolesne dla moich pikseli.",
                 "Czy Ty w ogóle patrzysz na telefon?",
                 "Małpy właśnie zamówiły pizzę, bo wiedzą, że tu jeszcze posiedzisz.",
-                "System operacyjny: Użytkownik zbyt wolny.",
+                "Maaaasło!", // Dodano specjalną wiadomość porażki
                 "Prawie! Ale 'prawie' nie daje linku.",
                 "Znowu startujemy. Podoba Ci się ten ower?",
+                "Maaaasło!",
                 "Może spróbuj grać drugą ręką?"
             ];
             document.getElementById('fail-msg').innerText = customMsg || msgs[Math.floor(Math.random() * msgs.length)];
@@ -220,8 +221,10 @@
             for (let s of sequence) {
                 await new Promise(r => setTimeout(r, 600));
                 const pad = document.getElementById(`pad-${s}`);
-                pad.classList.add('active-pad');
-                setTimeout(() => pad.classList.remove('active-pad'), 400);
+                if (pad) {
+                    pad.classList.add('active-pad');
+                    setTimeout(() => pad.classList.remove('active-pad'), 400);
+                }
             }
             isShowingSequence = false;
             document.getElementById('mem-msg').innerText = "TWOJA KOLEJ!";
@@ -276,7 +279,6 @@
             const proj = document.getElementById('projectile');
             proj.setAttribute('x', 35);
             proj.setAttribute('y', 290);
-            // Zawsze widoczna zgodnie z nowym wymogiem
             document.getElementById('phys-target').setAttribute('class', 'parrot-visible');
         }
 
@@ -309,14 +311,13 @@
                 vel.y = (startPos.y - pPos.y) * 0.18;
             };
 
-            const down = () => { 
-                if(!launched) {
-                    isDragging = true;
-                    // USUNIĘTO mechanizm znikania celu
-                }
-            };
+            const down = () => { if(!launched) isDragging = true; };
 
-            const up = () => {
+            layer.onmousedown = down;
+            layer.ontouchstart = (e) => { e.preventDefault(); down(); };
+            window.onmousemove = move;
+            window.ontouchmove = move;
+            window.onmouseup = () => {
                 if (!isDragging || launched) return;
                 isDragging = false;
                 line.classList.add('hidden');
@@ -329,13 +330,7 @@
                 document.getElementById('tries-left').innerText = attemptsLeft;
                 runPhysics();
             };
-
-            layer.onmousedown = down;
-            layer.ontouchstart = (e) => { e.preventDefault(); down(); };
-            window.onmousemove = move;
-            window.ontouchmove = move;
-            window.onmouseup = up;
-            window.ontouchend = up;
+            window.ontouchend = window.onmouseup;
         }
 
         function runPhysics() {
@@ -346,24 +341,15 @@
             const loop = setInterval(() => {
                 vel.y += 0.25; curX += vel.x; curY += vel.y;
                 
-                // NOWA LOGIKA UCIECZKI: Szybsza i w kierunku najdalszym od kokosa
                 if (curX > 80 && Math.abs(curX - tx) < 150) {
-                    // Oblicz kierunek przeciwny do kokosa
                     let diffX = tx - curX;
                     let diffY = ty - curY;
                     let distance = Math.sqrt(diffX*diffX + diffY*diffY);
-                    
-                    // Prędkość ucieczki (zwiększona)
                     let escapeSpeed = 6.5; 
-                    
-                    // Składowe ucieczki (znormalizowane i pomnożone przez prędkość)
                     let moveX = (diffX / distance) * escapeSpeed;
                     let moveY = (diffY / distance) * (escapeSpeed * 0.6);
-                    
-                    // Sprawdź granice kontenera, aby nie uciekła poza obszar gry
                     if (tx + moveX > 150 && tx + moveX < 310) tx += moveX;
                     if (ty + moveY > 20 && ty + moveY < 230) ty += moveY;
-                    
                     target.setAttribute('x', tx); target.setAttribute('y', ty);
                 }
 
@@ -393,13 +379,13 @@
             resetLauncher();
             document.getElementById('physics-container').classList.add('shake');
             setTimeout(() => document.getElementById('physics-container').classList.remove('shake'), 200);
-            if (attemptsLeft <= 0) fail("Koniec amunicji. Małpa wygrała.");
+            if (attemptsLeft <= 0) fail("Koniec amunicji. Papuga wygrała.");
         }
 
         /* POZIOM 3 */
         function initLvl3() {
             currentLvl = 3;
-            gameTime3 = 20.0; 
+            gameTime3 = 15.0; // Wydłużony czas do 15 sekund
             molesHit = 0;
             show('screen-lvl3');
             updateBar(0);
@@ -424,12 +410,13 @@
             mole.style.left = Math.random() * (arena.clientWidth - 60) + 'px';
             mole.style.top = Math.random() * (arena.clientHeight - 60) + 'px';
             
+            // Ułatwiono tempo (minimalnie 400ms zamiast 300ms)
             setTimeout(() => {
                 if(!mole.classList.contains('hidden')) {
                     mole.classList.add('hidden');
                     if(molesHit < 15) spawnMole();
                 }
-            }, Math.max(300, 750 - (molesHit * 30)));
+            }, Math.max(400, 900 - (molesHit * 25)));
         }
 
         function moleHit() {
@@ -450,4 +437,3 @@
     </script>
 </body>
 </html>
-
