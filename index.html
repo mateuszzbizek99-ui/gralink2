@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Tropikalna Przygoda - EDYCJA TROLLA v10</title>
+    <title>Tropikalna Przygoda - EDYCJA TROLLA v11</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { 
@@ -38,13 +38,17 @@
         }
         .game-screen { display: none; }
         .game-screen.active { display: block; }
+
+        /* Stylizacja dla Flappy Monkey */
+        #flappy-monkey { transition: transform 0.1s; }
+        .pipe { position: absolute; background-color: #3f6212; border: 4px solid #1a2e05; border-radius: 8px; }
     </style>
 </head>
 <body class="text-white flex items-center justify-center min-h-screen p-4 select-none overflow-hidden">
 
     <div id="wrapper" class="bg-yellow-900/90 p-6 rounded-[3rem] shadow-2xl border-4 border-yellow-700 max-w-sm w-full text-center relative">
         
-        <!-- HUD - Interfejs gry -->
+        <!-- HUD -->
         <div id="hud" class="hidden mb-4">
             <div class="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-yellow-200 mb-2">
                 <span id="lvl-title">Poziom 1</span>
@@ -54,7 +58,9 @@
             <div class="w-full bg-yellow-950 h-3 rounded-full border border-yellow-800 overflow-hidden">
                 <div id="bar" class="h-full bg-green-500 transition-all duration-300 w-0"></div>
             </div>
-            <div id="attempts-ui" class="hidden text-xs text-orange-400 mt-1 font-bold italic">AMUNICJA: <span id="tries-left">5</span>/5</div>
+            <div id="attempts-ui" class="hidden text-xs text-orange-400 mt-1 font-bold italic text-center w-full">
+                <span id="extra-info"></span>
+            </div>
         </div>
 
         <!-- EKRANY -->
@@ -63,7 +69,7 @@
         <div id="screen-intro" class="game-screen active">
             <div class="mb-6 text-6xl">🌴🐒🥥</div>
             <h1 class="text-4xl font-black uppercase italic mb-2 tracking-tighter text-yellow-400 jungle-font">Małpi Interes</h1>
-            <p class="text-yellow-100 text-sm mb-8">Zdobądź skarb... o ile nie masz palców z drewna! <br><span class="text-xs opacity-50 italic">Pamiętaj: błąd cofa Cię na sam start.</span></p>
+            <p class="text-yellow-100 text-sm mb-8">Pokonaj 4 tropikalne wyzwania. Błąd cofa Cię do korzeni! <br><span class="text-xs opacity-50 italic">Dasz radę czy jesteś zwykłym... masłem?</span></p>
             <button onclick="initLvl1()" class="w-full bg-green-600 hover:bg-green-500 text-white font-black py-5 rounded-3xl active:scale-95 transition-all uppercase shadow-lg border-b-8 border-green-800">
                 WCHODZĘ W TO! 🥥
             </button>
@@ -82,7 +88,7 @@
 
         <!-- 2. Poziom 2: Snajper -->
         <div id="screen-lvl2" class="game-screen">
-            <p class="text-xs mb-4 text-yellow-200">Szybka małpa ucieka przed kokosem! Masz 5 szans.</p>
+            <p class="text-xs mb-4 text-yellow-200">Zbij uciekającą małpę! Masz 5 rzutów.</p>
             <div id="physics-container" class="relative w-full aspect-square bg-sky-400 rounded-3xl border-4 border-yellow-800 overflow-hidden shadow-inner">
                 <div class="absolute bottom-0 w-full h-20 bg-green-700"></div>
                 <svg id="game-canvas" class="w-full h-full relative z-10">
@@ -94,11 +100,19 @@
             </div>
         </div>
 
-        <!-- 3. Poziom 3: Refleks -->
+        <!-- 3. Poziom 3: Małpi Lot (Flappy Style) -->
         <div id="screen-lvl3" class="game-screen">
+            <p class="text-xs mb-4 text-yellow-200">Tapnij, aby lecieć! Przeleć przez 10 lian.</p>
+            <div id="flappy-arena" onclick="flappyJump()" class="relative w-full aspect-square bg-emerald-900 rounded-3xl border-4 border-yellow-800 overflow-hidden shadow-inner">
+                <div id="flappy-monkey" class="absolute left-10 text-3xl z-30">🐒</div>
+            </div>
+        </div>
+
+        <!-- 4. Poziom 4: Refleks -->
+        <div id="screen-lvl4" class="game-screen">
             <p class="text-xs mb-4 text-yellow-200 uppercase font-black">ZBIERZ 15 MONET - MASZ 15 SEKUND!</p>
             <div id="tap-arena" class="relative w-full aspect-square bg-orange-200 rounded-3xl border-4 border-yellow-800 overflow-hidden shadow-inner">
-                <div id="mole" onclick="moleHit()" class="absolute w-12 h-12 rounded-full hidden flex items-center justify-center text-3xl cursor-pointer">
+                <div id="mole" onclick="moleHit()" class="absolute w-16 h-16 rounded-full hidden flex items-center justify-center text-4xl cursor-pointer">
                     🪙
                 </div>
             </div>
@@ -119,18 +133,18 @@
             <div class="text-6xl mb-4">🥴</div>
             <h2 class="text-2xl font-black text-orange-400 italic mb-2 uppercase text-center">SKRAJNA ROZPACZ</h2>
             <p class="text-yellow-100 text-sm mb-6 leading-relaxed">
-                To Twoja 10. porażka. 🐒 Widok Twoich starań sprawia, że małpom pękają serca (i brzuchy ze śmiechu). <br><br>
-                Masz ten link, ale obiecaj, że nie powiesz nikomu, jak bardzo jesteś słaby.
+                To Twoja 10. porażka. 🐒 Małpy przestały się śmiać, zaczęły Ci współczuć. To czyste, żywe Masło. <br><br>
+                Bierz ten link i udawajmy, że to spotkanie nigdy nie miało miejsca.
             </p>
             <a href="https://drive.google.com/file/d/1Khm9J8Na9T4lh5QrqpTfPqkvNQveNmTp/view?usp=sharing" class="block w-full bg-orange-600 text-white font-black py-4 rounded-2xl text-center border-b-4 border-orange-800">
-                DAWAJ LINK I UCIEKAM 🍌
+                DAWAJ LINK I ZNIKAM 🍌
             </a>
         </div>
 
         <!-- Porażka -->
         <div id="screen-fail" class="game-screen py-8">
             <div class="text-6xl mb-4">💀</div>
-            <h2 id="fail-title" class="text-2xl font-black text-red-500 italic mb-4 uppercase">SŁABIZNA!</h2>
+            <h2 id="fail-title" class="text-2xl font-black text-red-500 italic mb-4 uppercase">MASŁO!</h2>
             <p id="fail-msg" class="text-yellow-100 text-sm mb-8">Tekst błędu</p>
             <button onclick="initLvl1()" class="w-full bg-yellow-700 text-white font-black py-4 rounded-2xl border-b-4 border-yellow-900 active:translate-y-1 transition-all">
                 WRÓĆ NA START (PRÓBA <span id="fail-count-display">1</span>/10)
@@ -141,6 +155,7 @@
 
     <script>
         let mainTimer;
+        let gameLoop;
         let totalFails = 0; 
         let currentLvl = 1;
         let sequence = [];
@@ -149,7 +164,7 @@
         let attemptsLeft = 5;
         let launched = false;
         let isDragging = false;
-        let gameTime3 = 15.0; // Zwiększono czas z 12 do 15 sekund
+        let gameTime4 = 15.0; 
         let molesHit = 0;
 
         function show(id) {
@@ -161,8 +176,10 @@
             if(id.startsWith('screen-lvl')) hud.classList.remove('hidden');
             else hud.classList.add('hidden');
             
-            document.getElementById('attempts-ui').classList.toggle('hidden', id !== 'screen-lvl2');
+            document.getElementById('attempts-ui').classList.toggle('hidden', !['screen-lvl2', 'screen-lvl3'].includes(id));
             document.getElementById('wrapper').classList.remove('shake');
+            clearInterval(mainTimer);
+            cancelAnimationFrame(gameLoop);
         }
 
         function notify(txt, colorClass = "text-white") {
@@ -176,6 +193,7 @@
         }
 
         function fail(customMsg = null) {
+            cancelAnimationFrame(gameLoop);
             clearInterval(mainTimer);
             totalFails++;
             document.getElementById('fail-count-display').innerText = totalFails;
@@ -186,21 +204,20 @@
             }
 
             const msgs = [
-                "Twoja babcia klika szybciej. A ona nie żyje.",
-                "To było bolesne dla moich pikseli.",
-                "Czy Ty w ogóle patrzysz na telefon?",
-                "Małpy właśnie zamówiły pizzę, bo wiedzą, że tu jeszcze posiedzisz.",
-                "Maaaasło!", // Dodano specjalną wiadomość porażki
-                "Prawie! Ale 'prawie' nie daje linku.",
-                "Znowu startujemy. Podoba Ci się ten ower?",
                 "Maaaasło!",
-                "Może spróbuj grać drugą ręką?"
+                "To było bolesne dla moich pikseli.",
+                "Znowu startujemy. Maaaasło!",
+                "Czy Ty w ogóle patrzysz na telefon?",
+                "Maaaasło! Co to miało być?",
+                "System operacyjny: Użytkownik zbyt wolny i maślany.",
+                "Prawie! Ale wciąż... Maaaasło.",
+                "Znowu Poziom 1? To Twój limit?"
             ];
             document.getElementById('fail-msg').innerText = customMsg || msgs[Math.floor(Math.random() * msgs.length)];
             show('screen-fail');
         }
 
-        /* POZIOM 1 */
+        /* POZIOM 1: PAMIĘĆ */
         function initLvl1() {
             currentLvl = 1;
             show('screen-lvl1');
@@ -211,7 +228,6 @@
             let isHard = Math.random() < 0.3;
             sequence = Array.from({length: isHard ? 9 : 5}, () => Math.floor(Math.random() * 4));
             playerSeq = [];
-            
             setTimeout(playSequence, 800);
         }
 
@@ -245,7 +261,7 @@
             if (playerSeq.length === sequence.length) setTimeout(initLvl2, 800);
         }
 
-        /* POZIOM 2 */
+        /* POZIOM 2: SNAJPER */
         let pPos = { x: 50, y: 280 };
         let startPos = { x: 50, y: 280 };
         let vel = { x: 0, y: 0 };
@@ -261,12 +277,7 @@
             updateBar(0);
             document.getElementById('lvl-title').innerText = "POZIOM 2";
             document.getElementById('timer').innerText = "SNAJPER";
-            document.getElementById('tries-left').innerText = attemptsLeft;
-            
-            const target = document.getElementById('phys-target');
-            target.setAttribute('x', tx);
-            target.setAttribute('y', ty);
-            target.setAttribute('class', 'parrot-visible');
+            document.getElementById('extra-info').innerText = `AMUNICJA: ${attemptsLeft}/5`;
             
             resetLauncher();
             setupSlingshot();
@@ -286,6 +297,7 @@
             const layer = document.getElementById('touch-layer');
             const proj = document.getElementById('projectile');
             const line = document.getElementById('slingshot-line');
+            const target = document.getElementById('phys-target');
             const rect = document.getElementById('physics-container').getBoundingClientRect();
 
             const move = (e) => {
@@ -297,24 +309,19 @@
                 const dist = Math.sqrt(dx*dx + dy*dy);
                 const limit = 100;
                 const scale = dist > limit ? limit/dist : 1;
-                
                 pPos.x = startPos.x + dx * scale;
                 pPos.y = startPos.y + dy * scale;
-                
                 proj.setAttribute('x', pPos.x - 15);
                 proj.setAttribute('y', pPos.y + 10);
                 line.classList.remove('hidden');
                 line.setAttribute('x2', pPos.x);
                 line.setAttribute('y2', pPos.y);
-                
                 vel.x = (startPos.x - pPos.x) * 0.18;
                 vel.y = (startPos.y - pPos.y) * 0.18;
             };
 
-            const down = () => { if(!launched) isDragging = true; };
-
-            layer.onmousedown = down;
-            layer.ontouchstart = (e) => { e.preventDefault(); down(); };
+            layer.onmousedown = () => { if(!launched) isDragging = true; };
+            layer.ontouchstart = (e) => { e.preventDefault(); layer.onmousedown(); };
             window.onmousemove = move;
             window.ontouchmove = move;
             window.onmouseup = () => {
@@ -323,117 +330,31 @@
                 line.classList.add('hidden');
                 if (Math.random() < 0.3) {
                     vel.x *= 0.3; vel.y *= 0.3;
-                    notify("RZUT JAK CIEPŁE KLUSKI! 😂", "text-orange-500");
+                    notify("CO TO ZA RZUT?! 😂", "text-orange-500");
                 }
                 launched = true;
                 attemptsLeft--;
-                document.getElementById('tries-left').innerText = attemptsLeft;
-                runPhysics();
+                document.getElementById('extra-info').innerText = `AMUNICJA: ${attemptsLeft}/5`;
+                runSlingshotPhysics();
             };
             window.ontouchend = window.onmouseup;
         }
 
-        function runPhysics() {
+        function runSlingshotPhysics() {
             const proj = document.getElementById('projectile');
             const target = document.getElementById('phys-target');
             let curX = pPos.x; let curY = pPos.y;
-            
             const loop = setInterval(() => {
                 vel.y += 0.25; curX += vel.x; curY += vel.y;
-                
                 if (curX > 80 && Math.abs(curX - tx) < 150) {
                     let diffX = tx - curX;
                     let diffY = ty - curY;
-                    let distance = Math.sqrt(diffX*diffX + diffY*diffY);
+                    let dist = Math.sqrt(diffX*diffX + diffY*diffY);
                     let escapeSpeed = 6.5; 
-                    let moveX = (diffX / distance) * escapeSpeed;
-                    let moveY = (diffY / distance) * (escapeSpeed * 0.6);
+                    let moveX = (diffX / dist) * escapeSpeed;
+                    let moveY = (diffY / dist) * (escapeSpeed * 0.6);
                     if (tx + moveX > 150 && tx + moveX < 310) tx += moveX;
                     if (ty + moveY > 20 && ty + moveY < 230) ty += moveY;
                     target.setAttribute('x', tx); target.setAttribute('y', ty);
                 }
-
-                proj.setAttribute('x', curX - 15); proj.setAttribute('y', curY + 10);
-                const d = Math.sqrt(Math.pow(curX - tx, 2) + Math.pow(curY - ty, 2));
-
-                if (d < 35) {
-                    clearInterval(loop);
-                    if (Math.random() < 0.2) {
-                        notify("PUDŁO! ODBIŁO SIĘ! 🔔", "text-yellow-400");
-                        resetThrow();
-                    } else {
-                        notify("W SAM ŚRODEK! 🎯", "text-green-500");
-                        setTimeout(initLvl3, 800);
-                    }
-                    return;
-                }
-
-                if (curX > 400 || curY > 400 || curX < -50 || curY < -50) {
-                    clearInterval(loop);
-                    resetThrow();
-                }
-            }, 20);
-        }
-
-        function resetThrow() {
-            resetLauncher();
-            document.getElementById('physics-container').classList.add('shake');
-            setTimeout(() => document.getElementById('physics-container').classList.remove('shake'), 200);
-            if (attemptsLeft <= 0) fail("Koniec amunicji. Papuga wygrała.");
-        }
-
-        /* POZIOM 3 */
-        function initLvl3() {
-            currentLvl = 3;
-            gameTime3 = 15.0; // Wydłużony czas do 15 sekund
-            molesHit = 0;
-            show('screen-lvl3');
-            updateBar(0);
-            document.getElementById('lvl-title').innerText = "POZIOM 3";
-            document.getElementById('timer').innerText = "REFLEKS";
-            
-            clearInterval(mainTimer);
-            mainTimer = setInterval(() => {
-                gameTime3 -= 0.1;
-                document.getElementById('timer').innerText = gameTime3.toFixed(1) + 's';
-                if(gameTime3 <= 0) fail("Za wolno! Monety przepadły.");
-            }, 100);
-            spawnMole();
-        }
-
-        function spawnMole() {
-            if (currentLvl !== 3) return;
-            const mole = document.getElementById('mole');
-            const arena = document.getElementById('tap-arena');
-            
-            mole.classList.remove('hidden');
-            mole.style.left = Math.random() * (arena.clientWidth - 60) + 'px';
-            mole.style.top = Math.random() * (arena.clientHeight - 60) + 'px';
-            
-            // Ułatwiono tempo (minimalnie 400ms zamiast 300ms)
-            setTimeout(() => {
-                if(!mole.classList.contains('hidden')) {
-                    mole.classList.add('hidden');
-                    if(molesHit < 15) spawnMole();
-                }
-            }, Math.max(400, 900 - (molesHit * 25)));
-        }
-
-        function moleHit() {
-            molesHit++;
-            updateBar((molesHit / 15) * 100);
-            document.getElementById('mole').classList.add('hidden');
-            if (molesHit >= 15) {
-                clearInterval(mainTimer);
-                show('screen-win');
-            } else {
-                spawnMole();
-            }
-        }
-
-        function updateBar(p) {
-            document.getElementById('bar').style.width = p + '%';
-        }
-    </script>
-</body>
-</html>
+                proj.setAttribute('x', curX - 15); proj.setAttribute('y', curY
