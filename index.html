@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Tropikalna Przygoda - EDYCJA TROLLA v3</title>
+    <title>Tropikalna Przygoda - EDYCJA TROLLA v4</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { 
@@ -73,7 +73,7 @@
             <p class="text-sm mb-6 text-yellow-200" id="mem-msg">Patrz uważnie...</p>
             <div class="grid grid-cols-2 gap-4 aspect-square">
                 <div id="pad-0" onclick="playerTap(0)" class="bg-orange-600 rounded-full h-28 flex items-center justify-center text-4xl border-b-8 border-orange-800">🥥</div>
-                <div id="pad-1" onclick="playerTap(1)" class="bg-amber-600 rounded-full h-28 flex items-center justify-center text-4xl border-b-8 border-amber-800"> Pineapple 🍍</div>
+                <div id="pad-1" onclick="playerTap(1)" class="bg-amber-600 rounded-full h-28 flex items-center justify-center text-4xl border-b-8 border-amber-800">🍍</div>
                 <div id="pad-2" onclick="playerTap(2)" class="bg-lime-600 rounded-full h-28 flex items-center justify-center text-4xl border-b-8 border-lime-800">🍌</div>
                 <div id="pad-3" onclick="playerTap(3)" class="bg-emerald-600 rounded-full h-28 flex items-center justify-center text-4xl border-b-8 border-emerald-800">🥭</div>
             </div>
@@ -335,8 +335,6 @@
                 runPhysics();
             };
 
-            // Wyraźne usuwanie starych słuchaczy nie jest konieczne przy tej strukturze, 
-            // ale dodajemy obsługę touchstart/end dla stabilności mobilnej.
             touchLayer.onmousedown = down;
             touchLayer.ontouchstart = (e) => { e.preventDefault(); down(); };
             
@@ -355,14 +353,12 @@
             const loop = setInterval(() => {
                 vel.y += 0.25; curX += vel.x; curY += vel.y;
                 
-                // Papuga ucieka WOLNIEJ (było 5/3, teraz 2.5/1.5)
-                // Ograniczenie ucieczki, aby nie wleciała na kokos startowy
+                // Papuga ucieka SZYBCIEJ (było 2.5/1.5, teraz 4.5/2.5)
                 if (curX > 100 && Math.abs(curX - tx) < 120) {
-                    let moveX = (curX < tx ? 2.5 : -2.5);
-                    // Nie pozwól jej zbliżyć się do x < 150
+                    let moveX = (curX < tx ? 4.5 : -4.5);
                     if (tx + moveX > 150) tx += moveX;
                     
-                    ty += (curY < ty ? 1.5 : -1.5);
+                    ty += (curY < ty ? 2.5 : -2.5);
                     target.setAttribute('x', tx); target.setAttribute('y', ty);
                 }
 
