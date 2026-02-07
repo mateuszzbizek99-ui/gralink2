@@ -3,6 +3,464 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Tropikalna Przygoda - EDYCJA TROLLA v6</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { 
+            touch-action: manipulation; 
+            -webkit-tap-highlight-color: transparent; 
+            background-color: #064e3b; 
+        }
+        .shake { animation: shake 0.2s ease-in-out; }
+        @keyframes shake {
+            0%, 100% { transform: translate(0,0); }
+            25% { transform: translate(-10px, 5px); }
+            75% { transform: translate(10px, -5px); }
+        }
+        .active-pad { 
+            filter: brightness(1.5) scale(0.95); 
+            box-shadow: 0 0 40px #fbbf24; 
+        }
+        #slingshot-line { pointer-events: none; stroke-dasharray: 8,4; }
+        .jungle-font { font-family: 'Arial Black', Gadget, sans-serif; }
+        .parrot-hidden { opacity: 0; pointer-events: none; transition: all 0.3s ease; }
+        .parrot-visible { opacity: 1; pointer-events: auto; transition: all 0.2s ease; }
+        .floating-text {
+            position: absolute;
+            animation: floatUp 1s ease-out forwards;
+            pointer-events: none;
+            font-weight: bold;
+            color: #f87171;
+            z-index: 100;
+        }
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-80px) scale(1.5); }
+        }
+    </style>
+</head>
+<body class="text-white flex items-center justify-center min-h-screen p-4 select-none overflow-hidden">
+
+    <div id="wrapper" class="bg-yellow-900/90 p-6 rounded-[3rem] shadow-2xl border-4 border-yellow-700 max-w-sm w-full text-center relative">
+        
+        <!-- Status -->
+        <div id="status" class="hidden mb-4">
+            <div class="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-yellow-200 mb-2">
+                <span id="lvl-title">Poziom 1</span>
+                <span id="timer-label">INFO:</span>
+                <span id="timer" class="text-lg font-mono text-red-500">--</span>
+            </div>
+            <div class="w-full bg-yellow-950 h-3 rounded-full border border-yellow-800 overflow-hidden">
+                <div id="bar" class="h-full bg-green-500 transition-all duration-300 w-0"></div>
+            </div>
+            <div id="attempts-ui" class="hidden text-xs text-orange-400 mt-1 font-bold">KOKOSY: <span id="tries-left">5</span>/5</div>
+        </div>
+
+        <!-- Ekrany -->
+        
+        <!-- Intro -->
+        <div id="screen-intro">
+            <div class="mb-6 text-6xl">🌴🐒🥥</div>
+            <h1 class="text-4xl font-black uppercase italic mb-2 tracking-tighter text-yellow-400 jungle-font">Małpi Interes</h1>
+            <p class="text-yellow-100 text-sm mb-8">Zdobądź skarb... jeśli Twoje palce nie służą tylko do dłubania w nosie. <br><span class="text-xs opacity-50 italic">Pamiętaj: jedna wtopa i wracasz do początku dżungli!</span></p>
+            <button onclick="initLvl1()" class="w-full bg-green-600 hover:bg-green-500 text-white font-black py-5 rounded-3xl active:scale-95 transition-all uppercase shadow-lg border-b-8 border-green-800">
+                DAWAJ KOKOSA! 🥥
+            </button>
+        </div>
+
+        <!-- Lvl 1: Memory -->
+        <div id="screen-lvl1" class="hidden">
+            <p class="text-sm mb-6 text-yellow-200" id="mem-msg">Patrz uważnie...</p>
+            <div class="grid grid-cols-2 gap-4 aspect-square">
+                <div id="pad-0" onclick="playerTap(0)" class="bg-orange-600 rounded-full h-28 flex items-center justify-center text-4xl border-b-8 border-orange-800">🥥</div>
+                <div id="pad-1" onclick="playerTap(1)" class="bg-amber-600 rounded-full h-28 flex items-center justify-center text-4xl border-b-8 border-amber-800">🍍</div>
+                <div id="pad-2" onclick="playerTap(2)" class="bg-lime-600 rounded-full h-28 flex items-center justify-center text-4xl border-b-8 border-lime-800">🍌</div>
+                <div id="pad-3" onclick="playerTap(3)" class="bg-emerald-600 rounded-full h-28 flex items-center justify-center text-4xl border-b-8 border-emerald-800">🥭</div>
+            </div>
+        </div>
+
+        <!-- Lvl 2: Physics -->
+        <div id="screen-lvl2" class="hidden">
+            <p class="text-xs mb-4 text-yellow-200" id="lvl2-msg">Papuga się chowa i ucieka. Masz 5 rzutów.</p>
+            <div id="physics-container" class="relative w-full aspect-square bg-sky-400 rounded-3xl border-4 border-yellow-800 overflow-hidden shadow-inner">
+                <div class="absolute bottom-0 w-full h-20 bg-green-700"></div>
+                <svg id="game-canvas" class="w-full h-full relative z-10">
+                    <text id="phys-target" x="80%" y="20%" font-size="40" class="parrot-visible">🦜</text>
+                    <text id="projectile" x="50" y="280" font-size="30">🥥</text>
+                    <line id="slingshot-line" x1="50" y1="280" x2="50" y2="280" stroke="#451a03" stroke-width="4" class="hidden" />
+                </svg>
+                <div id="touch-layer" class="absolute inset-0 z-20 cursor-crosshair"></div>
+            </div>
+        </div>
+
+        <!-- Lvl 3: Reflex -->
+        <div id="screen-lvl3" class="hidden">
+            <p class="text-xs mb-4 text-yellow-200 uppercase font-black">ZŁAP 15 MONET W 12 SEKUND!</p>
+            <div id="tap-arena" class="relative w-full aspect-square bg-orange-200 rounded-3xl border-4 border-yellow-800 overflow-hidden shadow-inner">
+                <div id="mole" onclick="moleHit()" class="absolute w-12 h-12 rounded-full hidden flex items-center justify-center text-3xl cursor-pointer">
+                    🪙
+                </div>
+            </div>
+        </div>
+
+        <!-- Win -->
+        <div id="screen-win" class="hidden py-8">
+            <div class="text-yellow-400 text-6xl mb-4">🏆</div>
+            <h2 class="text-2xl font-black text-yellow-400 italic mb-2 uppercase">KRÓL DZUNGLI!</h2>
+            <p class="text-yellow-100 text-sm mb-8">Niemożliwe stało się możliwe. Odbierz swój zasłużony skarb.</p>
+            <a href="https://drive.google.com/file/d/1Khm9J8Na9T4lh5QrqpTfPqkvNQveNmTp/view?usp=sharing" class="block w-full bg-green-500 text-white font-black py-5 rounded-3xl text-center shadow-xl border-b-8 border-green-800">
+                ODBIERZ SKARB 🎁
+            </a>
+        </div>
+
+        <!-- Pity (10 Prób) -->
+        <div id="screen-pity" class="hidden py-8">
+            <div class="text-6xl mb-4">🥴</div>
+            <h2 class="text-2xl font-black text-orange-400 italic mb-2 uppercase text-center">LEGENDARNA ŁAMAGA</h2>
+            <p class="text-yellow-100 text-sm mb-6 leading-relaxed">
+                10 PORAŻEK? 🐒 To już nie jest pech, to talent! Statystycznie rzecz biorąc, małpa z zawiązanymi oczami miałaby lepszy wynik. <br><br>
+                Bierz ten skarb i znikaj, bo inne zwierzęta zaczynają się bać, że Twoja niezdarność jest zaraźliwa.
+            </p>
+            <a href="https://drive.google.com/file/d/1Khm9J8Na9T4lh5QrqpTfPqkvNQveNmTp/view?usp=sharing" class="block w-full bg-orange-600 text-white font-black py-4 rounded-2xl text-center border-b-4 border-orange-800">
+                DAJ MI TO I NIC NIE MÓW 🍌
+            </a>
+        </div>
+
+        <!-- Fail -->
+        <div id="screen-fail" class="hidden py-8">
+            <div class="text-6xl mb-4">💀</div>
+            <h2 id="fail-title" class="text-2xl font-black text-red-500 italic mb-4 uppercase">WSTYD I HAŃBA!</h2>
+            <p id="fail-msg" class="text-yellow-100 text-sm mb-8">Tekst błędu</p>
+            <button onclick="initLvl1()" class="w-full bg-yellow-700 text-white font-black py-4 rounded-2xl border-b-4 border-yellow-900 active:translate-y-1 transition-all">
+                WRÓĆ NA START (PRÓBA <span id="fail-count-display">1</span>/10)
+            </button>
+        </div>
+
+    </div>
+
+    <script>
+        let mainTimer;
+        let totalFails = 0; 
+        let currentLvl = 1;
+        
+        const show = (id) => {
+            document.querySelectorAll('#wrapper > div').forEach(d => d.classList.add('hidden'));
+            document.getElementById('wrapper').classList.remove('shake');
+            document.getElementById(id).classList.remove('hidden');
+            if(id.startsWith('screen-lvl')) document.getElementById('status').classList.remove('hidden');
+            else document.getElementById('status').classList.add('hidden');
+            
+            document.getElementById('attempts-ui').classList.toggle('hidden', id !== 'screen-lvl2');
+        };
+
+        const updateBar = (p) => document.getElementById('bar').style.width = p + '%';
+        
+        const fail = (customMsg = null) => {
+            clearInterval(mainTimer);
+            totalFails++;
+            document.getElementById('fail-count-display').innerText = totalFails;
+            
+            if (totalFails >= 10) {
+                show('screen-pity');
+                return;
+            }
+
+            const msgs = [
+                "Nawet ślimak po maratonie ma lepszy refleks.",
+                "To było... niesamowicie słabe.",
+                "Czy Ty w ogóle patrzysz na ekran, czy w niebo?",
+                "Małpy właśnie zamówiły pizzę, bo wiedzą, że tu jeszcze posiedzisz.",
+                "Twoje palce działają z opóźnieniem 5 sekund.",
+                "Prawie! A 'prawie' w dżungli oznacza, że jesteś kolacją.",
+                "System operacyjny: Użytkownik niekompatybilny z wygraną.",
+                "Znowu poziom pierwszy? To Twój ulubiony, prawda?"
+            ];
+            document.getElementById('fail-msg').innerText = customMsg || msgs[Math.floor(Math.random() * msgs.length)];
+            show('screen-fail');
+        };
+
+        function notify(txt, colorClass = "text-white") {
+            const n = document.createElement('div');
+            n.className = `floating-text ${colorClass} text-xl z-50`;
+            n.innerText = txt;
+            n.style.left = "50%"; n.style.top = "40%";
+            n.style.transform = "translateX(-50%)";
+            document.getElementById('wrapper').appendChild(n);
+            setTimeout(() => n.remove(), 1000);
+        }
+
+        /* POZIOM 1: MAŁPIA PAMIĘĆ */
+        let sequence = [];
+        let playerSeq = [];
+        let isShowing = false;
+
+        function initLvl1() {
+            currentLvl = 1;
+            show('screen-lvl1');
+            document.getElementById('lvl-title').innerText = "POZIOM 1";
+            document.getElementById('timer').innerText = "PAMIĘĆ";
+            
+            // Losowa trudność niezależna od prób (30% szans na 9 elementów)
+            let isHard = Math.random() < 0.3;
+            let seqLength = isHard ? 9 : 5;
+            sequence = Array.from({length: seqLength}, () => Math.floor(Math.random() * 4));
+            playerSeq = [];
+            
+            setTimeout(() => {
+                playSequence();
+            }, 1000);
+        }
+
+        async function playSequence() {
+            isShowing = true;
+            document.getElementById('mem-msg').innerText = "Małpa pokazuje...";
+            for (let s of sequence) {
+                await new Promise(r => setTimeout(r, 600));
+                flash(s);
+            }
+            isShowing = false;
+            document.getElementById('mem-msg').innerText = "TWOJA KOLEJ!";
+        }
+
+        function flash(i) {
+            const pad = document.getElementById(`pad-${i}`);
+            pad.classList.add('active-pad');
+            setTimeout(() => pad.classList.remove('active-pad'), 400);
+        }
+
+        function playerTap(i) {
+            if (isShowing) return;
+            flash(i);
+            playerSeq.push(i);
+            if (playerSeq[playerSeq.length - 1] !== sequence[playerSeq.length - 1]) {
+                fail("Złe owoce! Małpa jest zniesmaczona.");
+                return;
+            }
+            updateBar((playerSeq.length / sequence.length) * 100);
+            if (playerSeq.length === sequence.length) setTimeout(initLvl2, 800);
+        }
+
+        /* POZIOM 2: FIZYKA (UPERDLIWA PAPUGA) */
+        let isDragging = false;
+        let pPos = { x: 50, y: 280 };
+        let startPos = { x: 50, y: 280 };
+        let vel = { x: 0, y: 0 };
+        let launched = false;
+        let attemptsLeft = 5;
+        let tx = 256; let ty = 64;
+
+        function initLvl2() {
+            currentLvl = 2;
+            attemptsLeft = 5;
+            launched = false;
+            isDragging = false;
+            tx = 256; ty = 64;
+            show('screen-lvl2');
+            updateBar(0);
+            document.getElementById('lvl-title').innerText = "POZIOM 2";
+            document.getElementById('timer').innerText = "SNAJPER";
+            document.getElementById('tries-left').innerText = attemptsLeft;
+            
+            const target = document.getElementById('phys-target');
+            target.setAttribute('x', tx);
+            target.setAttribute('y', ty);
+            target.setAttribute('class', 'parrot-visible'); // Zawsze widoczna na start
+            
+            const proj = document.getElementById('projectile');
+            proj.setAttribute('x', 35);
+            proj.setAttribute('y', 290);
+
+            setupSlingshot();
+        }
+
+        function setupSlingshot() {
+            const touchLayer = document.getElementById('touch-layer');
+            const proj = document.getElementById('projectile');
+            const line = document.getElementById('slingshot-line');
+            const target = document.getElementById('phys-target');
+            const rectContainer = document.getElementById('physics-container').getBoundingClientRect();
+
+            const move = (e) => {
+                if (!isDragging || launched) return;
+                
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                
+                const dx = (clientX - rectContainer.left) - startPos.x;
+                const dy = (clientY - rectContainer.top) - startPos.y;
+                
+                const dist = Math.sqrt(dx*dx + dy*dy);
+                const limit = 100;
+                const scale = dist > limit ? limit/dist : 1;
+                pPos.x = startPos.x + dx * scale;
+                pPos.y = startPos.y + dy * scale;
+                
+                proj.setAttribute('x', pPos.x - 15);
+                proj.setAttribute('y', pPos.y + 10);
+                line.classList.remove('hidden');
+                line.setAttribute('x2', pPos.x);
+                line.setAttribute('y2', pPos.y);
+                
+                vel.x = (startPos.x - pPos.x) * 0.18;
+                vel.y = (startPos.y - pPos.y) * 0.18;
+            };
+
+            const down = (e) => { 
+                if(!launched && !isDragging) {
+                    isDragging = true;
+                    // Papuga się boi jak celujesz? 30% szansy
+                    if(Math.random() < 0.3) {
+                        target.setAttribute('class', 'parrot-hidden');
+                        notify("GDZIE ONA JEST? 👻", "text-yellow-200");
+                    }
+                }
+            };
+
+            const up = () => {
+                if (!isDragging || launched) return;
+                isDragging = false;
+                // Przywrócenie widoczności natychmiast po puszczeniu procy
+                target.setAttribute('class', 'parrot-visible');
+                line.classList.add('hidden');
+                
+                // TROLL: 30% szansy na słaby rzut
+                if (Math.random() < 0.3) {
+                    vel.x *= 0.3; vel.y *= 0.3;
+                    notify("CO TO ZA RZUT? 😂", "text-orange-500");
+                }
+
+                launched = true;
+                attemptsLeft--;
+                document.getElementById('tries-left').innerText = attemptsLeft;
+                runPhysics();
+            };
+
+            touchLayer.onmousedown = down;
+            touchLayer.ontouchstart = (e) => { e.preventDefault(); down(); };
+            
+            window.onmousemove = move;
+            window.ontouchmove = move;
+
+            window.onmouseup = up;
+            window.ontouchend = up;
+        }
+
+        function runPhysics() {
+            const proj = document.getElementById('projectile');
+            const target = document.getElementById('phys-target');
+            let curX = pPos.x; let curY = pPos.y;
+            
+            const loop = setInterval(() => {
+                vel.y += 0.25; curX += vel.x; curY += vel.y;
+                
+                // Papuga ucieka SZYBCIEJ (4.5 / 2.5)
+                if (curX > 100 && Math.abs(curX - tx) < 120) {
+                    let moveX = (curX < tx ? 4.5 : -4.5);
+                    if (tx + moveX > 150) tx += moveX;
+                    
+                    ty += (curY < ty ? 2.5 : -2.5);
+                    target.setAttribute('x', tx); target.setAttribute('y', ty);
+                }
+
+                proj.setAttribute('x', curX - 15); proj.setAttribute('y', curY + 10);
+                const d = Math.sqrt(Math.pow(curX - tx, 2) + Math.pow(curY - ty, 2));
+
+                if (d < 35) {
+                    clearInterval(loop);
+                    // TROLL: 20% szansy na odbicie
+                    if (Math.random() < 0.2) {
+                        notify("DONG! ODBIŁO SIĘ! 🔔", "text-yellow-400");
+                        resetThrow();
+                    } else {
+                        notify("TRAFIONY! 🎯", "text-green-500");
+                        setTimeout(initLvl3, 800);
+                    }
+                    return;
+                }
+
+                if (curX > 400 || curY > 400 || curX < -50 || curY < -50) {
+                    clearInterval(loop);
+                    resetThrow();
+                }
+            }, 20);
+        }
+
+        function resetThrow() {
+            launched = false;
+            isDragging = false;
+            pPos = { x: 50, y: 280 };
+            
+            // KLUCZOWA POPRAWKA: Przywrócenie widoczności papugi po każdym resecie
+            const target = document.getElementById('phys-target');
+            target.setAttribute('class', 'parrot-visible');
+            
+            const proj = document.getElementById('projectile');
+            proj.setAttribute('x', 35);
+            proj.setAttribute('y', 290);
+            
+            document.getElementById('physics-container').classList.add('shake');
+            setTimeout(() => document.getElementById('physics-container').classList.remove('shake'), 200);
+            
+            if (attemptsLeft <= 0) {
+                fail("Koniec kokosów. Papuga wygrała tę rundę.");
+            }
+        }
+
+        /* POZIOM 3: REFLEKS */
+        let molesHit = 0;
+        let gameTime3 = 12.0;
+
+        function initLvl3() {
+            currentLvl = 3;
+            gameTime3 = 12.0; 
+            show('screen-lvl3');
+            updateBar(0);
+            document.getElementById('lvl-title').innerText = "POZIOM 3";
+            document.getElementById('timer').innerText = "REFLEKS";
+            molesHit = 0;
+            clearInterval(mainTimer);
+            mainTimer = setInterval(() => {
+                gameTime3 -= 0.1;
+                document.getElementById('timer').innerText = gameTime3.toFixed(1) + 's';
+                if(gameTime3 <= 0) fail("Czas minął! Twoje palce są zbyt wolne.");
+            }, 100);
+            spawnMole();
+        }
+
+        function spawnMole() {
+            const mole = document.getElementById('mole');
+            const arena = document.getElementById('tap-arena');
+            if (currentLvl !== 3) return;
+            mole.classList.remove('hidden');
+            mole.style.left = Math.random() * (arena.clientWidth - 60) + 'px';
+            mole.style.top = Math.random() * (arena.clientHeight - 60) + 'px';
+            
+            setTimeout(() => {
+                if(!mole.classList.contains('hidden')) {
+                    mole.classList.add('hidden');
+                    if(molesHit < 15 && currentLvl === 3) spawnMole();
+                }
+            }, Math.max(300, 750 - (molesHit * 30)));
+        }
+
+        function moleHit() {
+            molesHit++;
+            updateBar((molesHit / 15) * 100);
+            document.getElementById('mole').classList.add('hidden');
+            if (molesHit >= 15) {
+                clearInterval(mainTimer);
+                show('screen-win');
+            } else {
+                spawnMole();
+            }
+        }
+    </script>
+</body>
+</html><!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Tropikalna Przygoda - EDYCJA TROLLA v4</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -451,5 +909,6 @@
     </script>
 </body>
 </html>
+
 
 
