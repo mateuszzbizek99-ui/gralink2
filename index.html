@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Tropikalna Przygoda - EDYCJA TROLLA v11</title>
+    <title>Tropikalna Przygoda v12 - EDYCJA TROLLA</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { 
@@ -40,7 +40,7 @@
         .game-screen.active { display: block; }
 
         /* Stylizacja dla Flappy Monkey */
-        #flappy-monkey { transition: transform 0.1s; }
+        #flappy-monkey { transition: transform 0.1s; pointer-events: none; }
         .pipe { position: absolute; background-color: #3f6212; border: 4px solid #1a2e05; border-radius: 8px; }
     </style>
 </head>
@@ -48,11 +48,11 @@
 
     <div id="wrapper" class="bg-yellow-900/90 p-6 rounded-[3rem] shadow-2xl border-4 border-yellow-700 max-w-sm w-full text-center relative">
         
-        <!-- HUD -->
+        <!-- HUD - Nagłówek informacyjny -->
         <div id="hud" class="hidden mb-4">
             <div class="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-yellow-200 mb-2">
                 <span id="lvl-title">Poziom 1</span>
-                <span id="timer-label">STATUS:</span>
+                <span class="opacity-50">v12</span>
                 <span id="timer" class="text-lg font-mono text-red-500">--</span>
             </div>
             <div class="w-full bg-yellow-950 h-3 rounded-full border border-yellow-800 overflow-hidden">
@@ -63,13 +63,13 @@
             </div>
         </div>
 
-        <!-- EKRANY -->
+        <!-- EKRANY GRY -->
         
         <!-- 0. Intro -->
         <div id="screen-intro" class="game-screen active">
             <div class="mb-6 text-6xl">🌴🐒🥥</div>
             <h1 class="text-4xl font-black uppercase italic mb-2 tracking-tighter text-yellow-400 jungle-font">Małpi Interes</h1>
-            <p class="text-yellow-100 text-sm mb-8">Pokonaj 4 tropikalne wyzwania. Błąd cofa Cię do korzeni! <br><span class="text-xs opacity-50 italic">Dasz radę czy jesteś zwykłym... masłem?</span></p>
+            <p class="text-yellow-100 text-sm mb-8">Pokonaj 4 wyzwania. Błąd cofa Cię do korzeni! <br><span class="text-xs opacity-50 italic">Jesteś gotów czy jesteś Masłem?</span></p>
             <button onclick="initLvl1()" class="w-full bg-green-600 hover:bg-green-500 text-white font-black py-5 rounded-3xl active:scale-95 transition-all uppercase shadow-lg border-b-8 border-green-800">
                 WCHODZĘ W TO! 🥥
             </button>
@@ -100,7 +100,7 @@
             </div>
         </div>
 
-        <!-- 3. Poziom 3: Małpi Lot (Flappy Style) -->
+        <!-- 3. Poziom 3: Małpi Lot -->
         <div id="screen-lvl3" class="game-screen">
             <p class="text-xs mb-4 text-yellow-200">Tapnij, aby lecieć! Przeleć przez 10 lian.</p>
             <div id="flappy-arena" onclick="flappyJump()" class="relative w-full aspect-square bg-emerald-900 rounded-3xl border-4 border-yellow-800 overflow-hidden shadow-inner">
@@ -110,15 +110,15 @@
 
         <!-- 4. Poziom 4: Refleks -->
         <div id="screen-lvl4" class="game-screen">
-            <p class="text-xs mb-4 text-yellow-200 uppercase font-black">ZBIERZ 15 MONET - MASZ 15 SEKUND!</p>
+            <p class="text-xs mb-4 text-yellow-200 uppercase font-black">ZŁAP 15 MONET - MASZ 15 SEKUND!</p>
             <div id="tap-arena" class="relative w-full aspect-square bg-orange-200 rounded-3xl border-4 border-yellow-800 overflow-hidden shadow-inner">
-                <div id="mole" onclick="moleHit()" class="absolute w-16 h-16 rounded-full hidden flex items-center justify-center text-4xl cursor-pointer">
+                <div id="mole" onclick="moleHit()" class="absolute w-20 h-20 rounded-full hidden flex items-center justify-center text-5xl cursor-pointer">
                     🪙
                 </div>
             </div>
         </div>
 
-        <!-- Sukces -->
+        <!-- Wynik: Sukces -->
         <div id="screen-win" class="game-screen py-8">
             <div class="text-yellow-400 text-6xl mb-4">🏆</div>
             <h2 class="text-2xl font-black text-yellow-400 italic mb-2 uppercase">GIGANT DŻUNGLI!</h2>
@@ -128,20 +128,20 @@
             </a>
         </div>
 
-        <!-- Litość -->
+        <!-- Wynik: Litość -->
         <div id="screen-pity" class="game-screen py-8">
             <div class="text-6xl mb-4">🥴</div>
-            <h2 class="text-2xl font-black text-orange-400 italic mb-2 uppercase text-center">SKRAJNA ROZPACZ</h2>
+            <h2 class="text-2xl font-black text-orange-400 italic mb-2 uppercase text-center">MASŁO TOTALNE</h2>
             <p class="text-yellow-100 text-sm mb-6 leading-relaxed">
-                To Twoja 10. porażka. 🐒 Małpy przestały się śmiać, zaczęły Ci współczuć. To czyste, żywe Masło. <br><br>
-                Bierz ten link i udawajmy, że to spotkanie nigdy nie miało miejsca.
+                To Twoja 10. porażka. 🐒 Małpy przestały się śmiać, zaczęły Ci współczuć. <br><br>
+                Bierz ten link i udawajmy, że to spotkanie nigdy nie miało miejsca. Wstyd na całą wioskę.
             </p>
             <a href="https://drive.google.com/file/d/1Khm9J8Na9T4lh5QrqpTfPqkvNQveNmTp/view?usp=sharing" class="block w-full bg-orange-600 text-white font-black py-4 rounded-2xl text-center border-b-4 border-orange-800">
                 DAWAJ LINK I ZNIKAM 🍌
             </a>
         </div>
 
-        <!-- Porażka -->
+        <!-- Wynik: Porażka -->
         <div id="screen-fail" class="game-screen py-8">
             <div class="text-6xl mb-4">💀</div>
             <h2 id="fail-title" class="text-2xl font-black text-red-500 italic mb-4 uppercase">MASŁO!</h2>
@@ -154,32 +154,72 @@
     </div>
 
     <script>
-        let mainTimer;
-        let gameLoop;
-        let totalFails = 0; 
-        let currentLvl = 1;
-        let sequence = [];
-        let playerSeq = [];
-        let isShowingSequence = false;
-        let attemptsLeft = 5;
-        let launched = false;
-        let isDragging = false;
-        let gameTime4 = 15.0; 
-        let molesHit = 0;
+        // Zmienne stanu gry
+        let state = {
+            mainTimer: null,
+            gameLoop: null,
+            totalFails: 0,
+            currentLvl: 0,
+            isShowingSequence: false,
+            attemptsLeft: 5,
+            molesHit: 0,
+            gameTime4: 15.0
+        };
 
+        // Funkcja bezpiecznego przełączania ekranów
         function show(id) {
-            document.querySelectorAll('.game-screen').forEach(s => s.classList.remove('active'));
+            // Ukryj wszystkie ekrany gry
+            const screens = document.querySelectorAll('.game-screen');
+            screens.forEach(s => s.classList.remove('active'));
+            
+            // Pokaż wybrany ekran
             const target = document.getElementById(id);
-            if (target) target.classList.add('active');
+            if (target) {
+                target.classList.add('active');
+            }
             
+            // Zarządzaj widocznością HUD
             const hud = document.getElementById('hud');
-            if(id.startsWith('screen-lvl')) hud.classList.remove('hidden');
-            else hud.classList.add('hidden');
+            if (id.startsWith('screen-lvl')) {
+                hud.classList.remove('hidden');
+            } else {
+                hud.classList.add('hidden');
+            }
             
+            // Pokaż info dodatkowe tylko na poziomach 2 i 3
             document.getElementById('attempts-ui').classList.toggle('hidden', !['screen-lvl2', 'screen-lvl3'].includes(id));
+            
+            // Czyść wszystkie aktywne procesy
+            clearInterval(state.mainTimer);
+            cancelAnimationFrame(state.gameLoop);
+            
+            // Usuń ewentualny shake z wrappera
             document.getElementById('wrapper').classList.remove('shake');
-            clearInterval(mainTimer);
-            cancelAnimationFrame(gameLoop);
+        }
+
+        function fail(customMsg = null) {
+            clearInterval(state.mainTimer);
+            cancelAnimationFrame(state.gameLoop);
+            state.totalFails++;
+            document.getElementById('fail-count-display').innerText = state.totalFails;
+            
+            if (state.totalFails >= 10) {
+                show('screen-pity');
+                return;
+            }
+
+            const msgs = [
+                "Maaaasło!",
+                "Prawdziwe Masło z Ciebie.",
+                "Znowu startujemy. Maaaasło!",
+                "Czy Ty masz masło w palcach?",
+                "Maaaasło! Co to miało być?",
+                "Użytkownik zbyt maślany do wygranej.",
+                "Prawie! Ale wciąż... Maaaasło.",
+                "Wracasz do dżungli, bo jesteś masłem."
+            ];
+            document.getElementById('fail-msg').innerText = customMsg || msgs[Math.floor(Math.random() * msgs.length)];
+            show('screen-fail');
         }
 
         function notify(txt, colorClass = "text-white") {
@@ -192,49 +232,32 @@
             setTimeout(() => n.remove(), 1000);
         }
 
-        function fail(customMsg = null) {
-            cancelAnimationFrame(gameLoop);
-            clearInterval(mainTimer);
-            totalFails++;
-            document.getElementById('fail-count-display').innerText = totalFails;
-            
-            if (totalFails >= 10) {
-                show('screen-pity');
-                return;
-            }
-
-            const msgs = [
-                "Maaaasło!",
-                "To było bolesne dla moich pikseli.",
-                "Znowu startujemy. Maaaasło!",
-                "Czy Ty w ogóle patrzysz na telefon?",
-                "Maaaasło! Co to miało być?",
-                "System operacyjny: Użytkownik zbyt wolny i maślany.",
-                "Prawie! Ale wciąż... Maaaasło.",
-                "Znowu Poziom 1? To Twój limit?"
-            ];
-            document.getElementById('fail-msg').innerText = customMsg || msgs[Math.floor(Math.random() * msgs.length)];
-            show('screen-fail');
+        function updateBar(p) {
+            document.getElementById('bar').style.width = p + '%';
         }
 
         /* POZIOM 1: PAMIĘĆ */
+        let memorySequence = [];
+        let playerMemorySeq = [];
+
         function initLvl1() {
-            currentLvl = 1;
+            state.currentLvl = 1;
             show('screen-lvl1');
             document.getElementById('lvl-title').innerText = "POZIOM 1";
             document.getElementById('timer').innerText = "PAMIĘĆ";
             updateBar(0);
             
             let isHard = Math.random() < 0.3;
-            sequence = Array.from({length: isHard ? 9 : 5}, () => Math.floor(Math.random() * 4));
-            playerSeq = [];
+            memorySequence = Array.from({length: isHard ? 9 : 5}, () => Math.floor(Math.random() * 4));
+            playerMemorySeq = [];
+            
             setTimeout(playSequence, 800);
         }
 
         async function playSequence() {
-            isShowingSequence = true;
+            state.isShowingSequence = true;
             document.getElementById('mem-msg').innerText = "Patrz uważnie...";
-            for (let s of sequence) {
+            for (let s of memorySequence) {
                 await new Promise(r => setTimeout(r, 600));
                 const pad = document.getElementById(`pad-${s}`);
                 if (pad) {
@@ -242,50 +265,50 @@
                     setTimeout(() => pad.classList.remove('active-pad'), 400);
                 }
             }
-            isShowingSequence = false;
+            state.isShowingSequence = false;
             document.getElementById('mem-msg').innerText = "TWOJA KOLEJ!";
         }
 
         function playerTap(i) {
-            if (isShowingSequence) return;
+            if (state.isShowingSequence) return;
             const pad = document.getElementById(`pad-${i}`);
             pad.classList.add('active-pad');
             setTimeout(() => pad.classList.remove('active-pad'), 300);
             
-            playerSeq.push(i);
-            if (playerSeq[playerSeq.length - 1] !== sequence[playerSeq.length - 1]) {
-                fail("Zła sekwencja! Małpa jest zawiedziona.");
+            playerMemorySeq.push(i);
+            if (playerMemorySeq[playerMemorySeq.length - 1] !== memorySequence[playerMemorySeq.length - 1]) {
+                fail("Zła kolejność! Maaaaasło.");
                 return;
             }
-            updateBar((playerSeq.length / sequence.length) * 100);
-            if (playerSeq.length === sequence.length) setTimeout(initLvl2, 800);
+            updateBar((playerMemorySeq.length / memorySequence.length) * 100);
+            if (playerMemorySeq.length === memorySequence.length) setTimeout(initLvl2, 800);
         }
 
         /* POZIOM 2: SNAJPER */
+        let slingshot = { launched: false, isDragging: false, attempts: 5 };
+        let targetPos = { x: 256, y: 64 };
         let pPos = { x: 50, y: 280 };
-        let startPos = { x: 50, y: 280 };
-        let vel = { x: 0, y: 0 };
-        let tx = 256; let ty = 64;
+        let velocity = { x: 0, y: 0 };
 
         function initLvl2() {
-            currentLvl = 2;
-            attemptsLeft = 5;
-            launched = false;
-            isDragging = false;
-            tx = 256; ty = 64;
+            state.currentLvl = 2;
+            slingshot.attempts = 5;
+            slingshot.launched = false;
+            slingshot.isDragging = false;
+            targetPos = { x: 256, y: 64 };
             show('screen-lvl2');
             updateBar(0);
             document.getElementById('lvl-title').innerText = "POZIOM 2";
             document.getElementById('timer').innerText = "SNAJPER";
-            document.getElementById('extra-info').innerText = `AMUNICJA: ${attemptsLeft}/5`;
+            document.getElementById('extra-info').innerText = `AMUNICJA: ${slingshot.attempts}/5`;
             
             resetLauncher();
             setupSlingshot();
         }
 
         function resetLauncher() {
-            launched = false;
-            isDragging = false;
+            slingshot.launched = false;
+            slingshot.isDragging = false;
             pPos = { x: 50, y: 280 };
             const proj = document.getElementById('projectile');
             proj.setAttribute('x', 35);
@@ -301,40 +324,47 @@
             const rect = document.getElementById('physics-container').getBoundingClientRect();
 
             const move = (e) => {
-                if (!isDragging || launched) return;
+                if (!slingshot.isDragging || slingshot.launched) return;
                 const clientX = e.touches ? e.touches[0].clientX : e.clientX;
                 const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-                const dx = (clientX - rect.left) - startPos.x;
-                const dy = (clientY - rect.top) - startPos.y;
+                const dx = (clientX - rect.left) - 50;
+                const dy = (clientY - rect.top) - 280;
                 const dist = Math.sqrt(dx*dx + dy*dy);
                 const limit = 100;
                 const scale = dist > limit ? limit/dist : 1;
-                pPos.x = startPos.x + dx * scale;
-                pPos.y = startPos.y + dy * scale;
+                
+                pPos.x = 50 + dx * scale;
+                pPos.y = 280 + dy * scale;
+                
                 proj.setAttribute('x', pPos.x - 15);
                 proj.setAttribute('y', pPos.y + 10);
                 line.classList.remove('hidden');
+                line.setAttribute('x1', 50);
+                line.setAttribute('y1', 280);
                 line.setAttribute('x2', pPos.x);
                 line.setAttribute('y2', pPos.y);
-                vel.x = (startPos.x - pPos.x) * 0.18;
-                vel.y = (startPos.y - pPos.y) * 0.18;
+                
+                velocity.x = (50 - pPos.x) * 0.18;
+                velocity.y = (280 - pPos.y) * 0.18;
             };
 
-            layer.onmousedown = () => { if(!launched) isDragging = true; };
-            layer.ontouchstart = (e) => { e.preventDefault(); layer.onmousedown(); };
+            const down = (e) => { if(!slingshot.launched) slingshot.isDragging = true; };
+
+            layer.onmousedown = down;
+            layer.ontouchstart = (e) => { e.preventDefault(); down(); };
             window.onmousemove = move;
             window.ontouchmove = move;
             window.onmouseup = () => {
-                if (!isDragging || launched) return;
-                isDragging = false;
+                if (!slingshot.isDragging || slingshot.launched) return;
+                slingshot.isDragging = false;
                 line.classList.add('hidden');
                 if (Math.random() < 0.3) {
-                    vel.x *= 0.3; vel.y *= 0.3;
-                    notify("CO TO ZA RZUT?! 😂", "text-orange-500");
+                    velocity.x *= 0.3; velocity.y *= 0.3;
+                    notify("RZUT JAK CIEPŁE MASŁO! 😂", "text-orange-500");
                 }
-                launched = true;
-                attemptsLeft--;
-                document.getElementById('extra-info').innerText = `AMUNICJA: ${attemptsLeft}/5`;
+                slingshot.launched = true;
+                slingshot.attempts--;
+                document.getElementById('extra-info').innerText = `AMUNICJA: ${slingshot.attempts}/5`;
                 runSlingshotPhysics();
             };
             window.ontouchend = window.onmouseup;
@@ -345,16 +375,6 @@
             const target = document.getElementById('phys-target');
             let curX = pPos.x; let curY = pPos.y;
             const loop = setInterval(() => {
-                vel.y += 0.25; curX += vel.x; curY += vel.y;
-                if (curX > 80 && Math.abs(curX - tx) < 150) {
-                    let diffX = tx - curX;
-                    let diffY = ty - curY;
-                    let dist = Math.sqrt(diffX*diffX + diffY*diffY);
-                    let escapeSpeed = 6.5; 
-                    let moveX = (diffX / dist) * escapeSpeed;
-                    let moveY = (diffY / dist) * (escapeSpeed * 0.6);
-                    if (tx + moveX > 150 && tx + moveX < 310) tx += moveX;
-                    if (ty + moveY > 20 && ty + moveY < 230) ty += moveY;
-                    target.setAttribute('x', tx); target.setAttribute('y', ty);
-                }
-                proj.setAttribute('x', curX - 15); proj.setAttribute('y', curY
+                velocity.y += 0.25; curX += velocity.x; curY += velocity.y;
+                
+                // Intelig
