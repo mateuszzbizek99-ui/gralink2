@@ -46,7 +46,7 @@
         <div id="screen-intro">
             <div class="mb-6 text-6xl">🌴🐒🥥</div>
             <h1 class="text-4xl font-black uppercase italic mb-2 tracking-tighter text-yellow-400 jungle-font">Małpi Interes</h1>
-            <p class="text-yellow-100 text-sm mb-8">Pokonaj trzy tropikalne wyzwania, aby zdobyć dostęp do ukrytego skarbu. Tylko dla prawdziwych królów dżungli!</p>
+            <p class="text-yellow-100 text-sm mb-8">Pokonaj trzy tropikalne wyzwania, aby zdobyć skarb. Tylko dla prawdziwych królów dżungli!</p>
             <button onclick="initLvl1()" class="w-full bg-green-600 hover:bg-green-500 text-white font-black py-5 rounded-3xl active:scale-95 transition-all uppercase shadow-lg border-b-8 border-green-800">
                 WCHODZĘ W TO!
             </button>
@@ -69,11 +69,8 @@
             <div id="physics-container" class="relative w-full aspect-square bg-sky-400 rounded-3xl border-4 border-yellow-800 overflow-hidden shadow-inner">
                 <div class="absolute bottom-0 w-full h-20 bg-green-700"></div> <!-- Trawnik -->
                 <svg id="game-canvas" class="w-full h-full relative z-10">
-                    <!-- Cel: Papuga -->
                     <text id="phys-target" x="80%" y="20%" font-size="40" class="animate-bounce">🦜</text>
-                    <!-- Pocisk: Kokos -->
                     <text id="projectile" x="50" y="280" font-size="30">🥥</text>
-                    <!-- Linia procy -->
                     <line id="slingshot-line" x1="50" y1="280" x2="50" y2="280" stroke="#451a03" stroke-width="4" class="hidden" />
                 </svg>
                 <div id="touch-layer" class="absolute inset-0 z-20 cursor-crosshair"></div>
@@ -90,21 +87,32 @@
             </div>
         </div>
 
-        <!-- EKRANY KOŃCOWE -->
+        <!-- EKRAN WYGRANEJ -->
         <div id="screen-win" class="hidden py-8">
             <div class="text-yellow-400 text-6xl mb-4">👑</div>
             <h2 class="text-3xl font-black text-yellow-400 italic mb-2">KRÓL DŻUNGLI!</h2>
             <p class="text-yellow-100 text-sm mb-8">Wygrałeś! Skarb jest Twój. Kliknij poniżej, aby go odebrać.</p>
-            <a href="https://drive.google.com/file/d/1Khm9J8Na9T4lh5QrqpTfPqkvNQveNmTp/view?usp=sharing" class="block w-full bg-green-500 text-white font-black py-5 rounded-3xl animate-bounce text-center shadow-xl border-b-8 border-green-800">
+            <a href="https://drive.google.com/file/d/1Khm9J8Na9T4lh5QrqpTfPqkvNQveNmTp/view?usp=sharing" class="block w-full bg-green-500 text-white font-black py-5 rounded-3xl animate-pulse text-center shadow-xl border-b-8 border-green-800">
                 ODBIERZ SKARB 🎁
             </a>
         </div>
 
+        <!-- EKRAN LITOŚCI (PO 4 PORAŻKACH) -->
+        <div id="screen-pity" class="hidden py-8">
+            <div class="text-6xl mb-4">🙄</div>
+            <h2 class="text-2xl font-black text-orange-400 italic mb-2 uppercase">SERIO, ŁAMAGAO?</h2>
+            <p class="text-yellow-100 text-sm mb-6">Oho, widzę że ewolucja u Ciebie stanęła w miejscu! 🐒 Po czwartej nieudanej próbie nawet banany zaczęły gnić ze wstydu. Dobra, litościwy szympans podaje Ci pomocną dłoń (bo patrzeć na to nie może). Masz ten link, ale litość małp ma swoje granice!</p>
+            <a href="https://drive.google.com/file/d/1Khm9J8Na9T4lh5QrqpTfPqkvNQveNmTp/view?usp=sharing" class="block w-full bg-orange-600 text-white font-black py-4 rounded-2xl text-center border-b-4 border-orange-800">
+                DOBRA, DAJ MI TO... 🍌
+            </a>
+        </div>
+
+        <!-- EKRAN PORAŻKI -->
         <div id="screen-fail" class="hidden py-8">
             <div class="text-6xl mb-4">💀</div>
-            <h2 class="text-3xl font-black text-red-500 italic mb-4">UPS! WPADKA</h2>
-            <p class="text-yellow-100 text-sm mb-8">Małpy się z Ciebie śmieją... Spróbuj jeszcze raz!</p>
-            <button onclick="location.reload()" class="w-full bg-yellow-700 text-white font-black py-4 rounded-2xl border-b-4 border-yellow-900">
+            <h2 id="fail-title" class="text-3xl font-black text-red-500 italic mb-4">UPS! WPADKA</h2>
+            <p id="fail-msg" class="text-yellow-100 text-sm mb-8">Małpy się z Ciebie śmieją... Spróbuj jeszcze raz!</p>
+            <button onclick="restartLevel()" class="w-full bg-yellow-700 text-white font-black py-4 rounded-2xl border-b-4 border-yellow-900">
                 POWTÓRKA Z ROZRYWKI
             </button>
         </div>
@@ -114,6 +122,8 @@
     <script>
         /* LOGIKA GLOBALNA */
         let mainTimer;
+        let lvl3Fails = 0; // Licznik porażek na 3 poziomie
+        let currentLvl = 1;
         
         const show = (id) => {
             document.querySelectorAll('#wrapper > div').forEach(d => d.classList.add('hidden'));
@@ -124,9 +134,23 @@
         };
 
         const updateBar = (p) => document.getElementById('bar').style.width = p + '%';
+        
         const fail = () => {
             clearInterval(mainTimer);
+            if (currentLvl === 3) {
+                lvl3Fails++;
+                if (lvl3Fails >= 4) {
+                    show('screen-pity');
+                    return;
+                }
+            }
             show('screen-fail');
+        };
+
+        const restartLevel = () => {
+            if (currentLvl === 1) initLvl1();
+            else if (currentLvl === 2) initLvl2();
+            else if (currentLvl === 3) initLvl3();
         };
 
         /* POZIOM 1: PAMIĘĆ */
@@ -135,6 +159,7 @@
         let isShowing = false;
 
         function initLvl1() {
+            currentLvl = 1;
             show('screen-lvl1');
             document.getElementById('lvl-title').innerText = "LVL 1: MAŁPIA PAMIĘĆ";
             sequence = Array.from({length: 5}, () => Math.floor(Math.random() * 4));
@@ -176,6 +201,7 @@
         let launched = false;
 
         function initLvl2() {
+            currentLvl = 2;
             show('screen-lvl2');
             updateBar(0);
             document.getElementById('lvl-title').innerText = "LVL 2: KOKOSOWY SNAJPER";
@@ -192,24 +218,18 @@
                 if (!isDragging || launched) return;
                 const clientX = e.touches ? e.touches[0].clientX : e.clientX;
                 const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-                
                 const dx = (clientX - rect.left) - startPos.x;
                 const dy = (clientY - rect.top) - startPos.y;
-                
                 const dist = Math.sqrt(dx*dx + dy*dy);
                 const limit = 100;
                 const scale = dist > limit ? limit/dist : 1;
-                
                 pPos.x = startPos.x + dx * scale;
                 pPos.y = startPos.y + dy * scale;
-                
                 proj.setAttribute('x', pPos.x - 15);
                 proj.setAttribute('y', pPos.y + 10);
-                
                 line.classList.remove('hidden');
                 line.setAttribute('x2', pPos.x);
                 line.setAttribute('y2', pPos.y);
-                
                 vel.x = (startPos.x - pPos.x) * 0.18;
                 vel.y = (startPos.y - pPos.y) * 0.18;
             };
@@ -226,33 +246,25 @@
                 launched = true;
                 runPhysics();
             };
-
             window.addEventListener('mouseup', release);
             window.addEventListener('touchend', release);
         }
 
         function runPhysics() {
             const proj = document.getElementById('projectile');
-            const target = document.getElementById('phys-target');
-            
             let curX = pPos.x;
             let curY = pPos.y;
-
             const loop = setInterval(() => {
-                vel.y += 0.25; // Grawitacja dżungli
+                vel.y += 0.25;
                 curX += vel.x;
                 curY += vel.y;
-                
                 proj.setAttribute('x', curX - 15);
                 proj.setAttribute('y', curY + 10);
-
-                // Cel jest na 80%, 20% (ok 256, 64)
                 const d = Math.sqrt(Math.pow(curX - 256, 2) + Math.pow(curY - 64, 2));
                 if (d < 35) {
                     clearInterval(loop);
                     initLvl3();
                 }
-
                 if (curX > 400 || curY > 400 || curX < -50) {
                     clearInterval(loop);
                     launched = false;
@@ -267,27 +279,28 @@
 
         /* POZIOM 3: REFLEKS */
         let molesHit = 0;
-        let gameTime = 22.0;
+        let gameTime = 18.0;
 
         function initLvl3() {
+            currentLvl = 3;
+            gameTime = 18.0; // Reset czasu przy każdym starcie poziomu
             show('screen-lvl3');
             updateBar(0);
             document.getElementById('lvl-title').innerText = "LVL 3: GORĄCZKA ZŁOTA";
             molesHit = 0;
-            
+            clearInterval(mainTimer);
             mainTimer = setInterval(() => {
                 gameTime -= 0.1;
                 document.getElementById('timer').innerText = gameTime.toFixed(1) + 's';
                 if(gameTime <= 0) fail();
             }, 100);
-            
             spawnMole();
         }
 
         function spawnMole() {
             const mole = document.getElementById('mole');
             const arena = document.getElementById('tap-arena');
-            
+            if (currentLvl !== 3) return;
             mole.classList.remove('hidden');
             mole.style.left = Math.random() * (arena.clientWidth - 70) + 'px';
             mole.style.top = Math.random() * (arena.clientHeight - 70) + 'px';
@@ -295,7 +308,7 @@
             setTimeout(() => {
                 if(!mole.classList.contains('hidden')) {
                     mole.classList.add('hidden');
-                    if(molesHit < 15) spawnMole();
+                    if(molesHit < 15 && currentLvl === 3) spawnMole();
                 }
             }, Math.max(350, 900 - (molesHit * 50)));
         }
@@ -311,8 +324,6 @@
                 spawnMole();
             }
         }
-
     </script>
 </body>
-
 </html>
