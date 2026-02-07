@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Tropikalna Przygoda - EDYCJA TROLLA v8</title>
+    <title>Tropikalna Przygoda - EDYCJA TROLLA v9</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { 
@@ -23,8 +23,7 @@
         }
         #slingshot-line { pointer-events: none; stroke-dasharray: 8,4; }
         .jungle-font { font-family: 'Arial Black', Gadget, sans-serif; }
-        .parrot-hidden { opacity: 0; pointer-events: none; transition: all 0.3s ease; }
-        .parrot-visible { opacity: 1; pointer-events: auto; transition: all 0.2s ease; }
+        .parrot-visible { opacity: 1; pointer-events: auto; transition: opacity 0.2s ease; }
         .floating-text {
             position: absolute;
             animation: floatUp 1s ease-out forwards;
@@ -83,7 +82,7 @@
 
         <!-- 2. Poziom 2: Snajper -->
         <div id="screen-lvl2" class="game-screen">
-            <p class="text-xs mb-4 text-yellow-200">Traf w ptaka! Masz 5 szans.</p>
+            <p class="text-xs mb-4 text-yellow-200">Szybka małpa ucieka przed kokosem! Masz 5 szans.</p>
             <div id="physics-container" class="relative w-full aspect-square bg-sky-400 rounded-3xl border-4 border-yellow-800 overflow-hidden shadow-inner">
                 <div class="absolute bottom-0 w-full h-20 bg-green-700"></div>
                 <svg id="game-canvas" class="w-full h-full relative z-10">
@@ -121,10 +120,10 @@
             <h2 class="text-2xl font-black text-orange-400 italic mb-2 uppercase text-center">SKRAJNA ROZPACZ</h2>
             <p class="text-yellow-100 text-sm mb-6 leading-relaxed">
                 To Twoja 10. porażka. 🐒 Widok Twoich starań sprawia, że małpom pękają serca (i brzuchy ze śmiechu). <br><br>
-                Masz ten link, ale obiecaj, że nie powiesz nikomu, jak bardzo jesteś słaby.
+                Masz ten skarb, ale obiecaj, że nie powiesz nikomu, jak bardzo jesteś słaby.
             </p>
             <a href="https://drive.google.com/file/d/1Khm9J8Na9T4lh5QrqpTfPqkvNQveNmTp/view?usp=sharing" class="block w-full bg-orange-600 text-white font-black py-4 rounded-2xl text-center border-b-4 border-orange-800">
-                DAWAJ LINK I UCIEKAM 🍌
+                DAWAJ SKARB I UCIEKAM 🍌
             </a>
         </div>
 
@@ -190,7 +189,7 @@
                 "Twoja babcia klika szybciej. A ona nie żyje.",
                 "To było bolesne dla moich pikseli.",
                 "Czy Ty w ogóle patrzysz na telefon?",
-                "Małpy właśnie zamówiły pizzę, bo tu jeszcze posiedzisz.",
+                "Małpy właśnie zamówiły pizzę, bo wiedzą, że tu jeszcze posiedzisz.",
                 "System operacyjny: Użytkownik zbyt wolny.",
                 "Prawie! Ale 'prawie' nie daje linku.",
                 "Znowu startujemy. Podoba Ci się ten ower?",
@@ -277,6 +276,7 @@
             const proj = document.getElementById('projectile');
             proj.setAttribute('x', 35);
             proj.setAttribute('y', 290);
+            // Zawsze widoczna zgodnie z nowym wymogiem
             document.getElementById('phys-target').setAttribute('class', 'parrot-visible');
         }
 
@@ -284,7 +284,6 @@
             const layer = document.getElementById('touch-layer');
             const proj = document.getElementById('projectile');
             const line = document.getElementById('slingshot-line');
-            const target = document.getElementById('phys-target');
             const rect = document.getElementById('physics-container').getBoundingClientRect();
 
             const move = (e) => {
@@ -313,17 +312,13 @@
             const down = () => { 
                 if(!launched) {
                     isDragging = true;
-                    if(Math.random() < 0.3) {
-                        target.setAttribute('class', 'parrot-hidden');
-                        notify("ZNALAZŁA KRYJÓWKĘ! 👻", "text-yellow-200");
-                    }
+                    // USUNIĘTO mechanizm znikania celu
                 }
             };
 
             const up = () => {
                 if (!isDragging || launched) return;
                 isDragging = false;
-                target.setAttribute('class', 'parrot-visible');
                 line.classList.add('hidden');
                 if (Math.random() < 0.3) {
                     vel.x *= 0.3; vel.y *= 0.3;
@@ -351,10 +346,24 @@
             const loop = setInterval(() => {
                 vel.y += 0.25; curX += vel.x; curY += vel.y;
                 
-                if (curX > 100 && Math.abs(curX - tx) < 120) {
-                    let moveX = (curX < tx ? 4.5 : -4.5);
-                    if (tx + moveX > 150) tx += moveX;
-                    ty += (curY < ty ? 2.5 : -2.5);
+                // NOWA LOGIKA UCIECZKI: Szybsza i w kierunku najdalszym od kokosa
+                if (curX > 80 && Math.abs(curX - tx) < 150) {
+                    // Oblicz kierunek przeciwny do kokosa
+                    let diffX = tx - curX;
+                    let diffY = ty - curY;
+                    let distance = Math.sqrt(diffX*diffX + diffY*diffY);
+                    
+                    // Prędkość ucieczki (zwiększona)
+                    let escapeSpeed = 6.5; 
+                    
+                    // Składowe ucieczki (znormalizowane i pomnożone przez prędkość)
+                    let moveX = (diffX / distance) * escapeSpeed;
+                    let moveY = (diffY / distance) * (escapeSpeed * 0.6);
+                    
+                    // Sprawdź granice kontenera, aby nie uciekła poza obszar gry
+                    if (tx + moveX > 150 && tx + moveX < 310) tx += moveX;
+                    if (ty + moveY > 20 && ty + moveY < 230) ty += moveY;
+                    
                     target.setAttribute('x', tx); target.setAttribute('y', ty);
                 }
 
@@ -384,7 +393,7 @@
             resetLauncher();
             document.getElementById('physics-container').classList.add('shake');
             setTimeout(() => document.getElementById('physics-container').classList.remove('shake'), 200);
-            if (attemptsLeft <= 0) fail("Koniec amunicji. Papuga się śmieje.");
+            if (attemptsLeft <= 0) fail("Koniec amunicji. Małpa wygrała.");
         }
 
         /* POZIOM 3 */
