@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Tropikalna Przygoda - EDYCJA TROLLA v2</title>
+    <title>Tropikalna Przygoda - EDYCJA TROLLA v3</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { 
@@ -73,7 +73,7 @@
             <p class="text-sm mb-6 text-yellow-200" id="mem-msg">Patrz uważnie...</p>
             <div class="grid grid-cols-2 gap-4 aspect-square">
                 <div id="pad-0" onclick="playerTap(0)" class="bg-orange-600 rounded-full h-28 flex items-center justify-center text-4xl border-b-8 border-orange-800">🥥</div>
-                <div id="pad-1" onclick="playerTap(1)" class="bg-amber-600 rounded-full h-28 flex items-center justify-center text-4xl border-b-8 border-amber-800">🍍</div>
+                <div id="pad-1" onclick="playerTap(1)" class="bg-amber-600 rounded-full h-28 flex items-center justify-center text-4xl border-b-8 border-amber-800"> Pineapple 🍍</div>
                 <div id="pad-2" onclick="playerTap(2)" class="bg-lime-600 rounded-full h-28 flex items-center justify-center text-4xl border-b-8 border-lime-800">🍌</div>
                 <div id="pad-3" onclick="playerTap(3)" class="bg-emerald-600 rounded-full h-28 flex items-center justify-center text-4xl border-b-8 border-emerald-800">🥭</div>
             </div>
@@ -200,6 +200,7 @@
             document.getElementById('lvl-title').innerText = "POZIOM 1";
             document.getElementById('timer').innerText = "PAMIĘĆ";
             
+            // Losowa trudność niezależna od prób
             let isHard = Math.random() < 0.3;
             let seqLength = isHard ? 9 : 5;
             sequence = Array.from({length: seqLength}, () => Math.floor(Math.random() * 4));
@@ -252,31 +253,42 @@
         function initLvl2() {
             currentLvl = 2;
             attemptsLeft = 5;
+            launched = false;
+            isDragging = false;
             tx = 256; ty = 64;
             show('screen-lvl2');
             updateBar(0);
             document.getElementById('lvl-title').innerText = "POZIOM 2";
             document.getElementById('timer').innerText = "SNAJPER";
             document.getElementById('tries-left').innerText = attemptsLeft;
-            document.getElementById('phys-target').setAttribute('x', tx);
-            document.getElementById('phys-target').setAttribute('y', ty);
+            
+            const target = document.getElementById('phys-target');
+            target.setAttribute('x', tx);
+            target.setAttribute('y', ty);
+            target.setAttribute('class', 'parrot-visible');
+            
+            const proj = document.getElementById('projectile');
+            proj.setAttribute('x', 35);
+            proj.setAttribute('y', 290);
+
             setupSlingshot();
         }
 
         function setupSlingshot() {
-            const touch = document.getElementById('touch-layer');
+            const touchLayer = document.getElementById('touch-layer');
             const proj = document.getElementById('projectile');
             const line = document.getElementById('slingshot-line');
             const target = document.getElementById('phys-target');
-            const rect = document.getElementById('physics-container').getBoundingClientRect();
+            const rectContainer = document.getElementById('physics-container').getBoundingClientRect();
 
             const move = (e) => {
                 if (!isDragging || launched) return;
                 
                 const clientX = e.touches ? e.touches[0].clientX : e.clientX;
                 const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-                const dx = (clientX - rect.left) - startPos.x;
-                const dy = (clientY - rect.top) - startPos.y;
+                
+                const dx = (clientX - rectContainer.left) - startPos.x;
+                const dy = (clientY - rectContainer.top) - startPos.y;
                 
                 const dist = Math.sqrt(dx*dx + dy*dy);
                 const limit = 100;
@@ -295,7 +307,7 @@
             };
 
             const down = (e) => { 
-                if(!launched) {
+                if(!launched && !isDragging) {
                     isDragging = true;
                     // Papuga się boi jak celujesz? 30% szansy
                     if(Math.random() < 0.3) {
@@ -304,12 +316,8 @@
                     }
                 }
             };
-            touch.addEventListener('mousedown', down);
-            touch.addEventListener('touchstart', (e) => { e.preventDefault(); down(); });
-            window.addEventListener('mousemove', move);
-            window.addEventListener('touchmove', move);
 
-            const release = () => {
+            const up = () => {
                 if (!isDragging || launched) return;
                 isDragging = false;
                 target.setAttribute('class', 'parrot-visible');
@@ -326,8 +334,17 @@
                 document.getElementById('tries-left').innerText = attemptsLeft;
                 runPhysics();
             };
-            window.addEventListener('mouseup', release);
-            window.addEventListener('touchend', release);
+
+            // Wyraźne usuwanie starych słuchaczy nie jest konieczne przy tej strukturze, 
+            // ale dodajemy obsługę touchstart/end dla stabilności mobilnej.
+            touchLayer.onmousedown = down;
+            touchLayer.ontouchstart = (e) => { e.preventDefault(); down(); };
+            
+            window.onmousemove = move;
+            window.ontouchmove = move;
+
+            window.onmouseup = up;
+            window.ontouchend = up;
         }
 
         function runPhysics() {
@@ -339,8 +356,12 @@
                 vel.y += 0.25; curX += vel.x; curY += vel.y;
                 
                 // Papuga ucieka WOLNIEJ (było 5/3, teraz 2.5/1.5)
+                // Ograniczenie ucieczki, aby nie wleciała na kokos startowy
                 if (curX > 100 && Math.abs(curX - tx) < 120) {
-                    tx += (curX < tx ? 2.5 : -2.5); 
+                    let moveX = (curX < tx ? 2.5 : -2.5);
+                    // Nie pozwól jej zbliżyć się do x < 150
+                    if (tx + moveX > 150) tx += moveX;
+                    
                     ty += (curY < ty ? 1.5 : -1.5);
                     target.setAttribute('x', tx); target.setAttribute('y', ty);
                 }
@@ -361,7 +382,7 @@
                     return;
                 }
 
-                if (curX > 400 || curY > 400 || curX < -50) {
+                if (curX > 400 || curY > 400 || curX < -50 || curY < -50) {
                     clearInterval(loop);
                     resetThrow();
                 }
@@ -370,12 +391,17 @@
 
         function resetThrow() {
             launched = false;
+            isDragging = false;
             pPos = { x: 50, y: 280 };
-            document.getElementById('projectile').setAttribute('x', 35);
-            document.getElementById('projectile').setAttribute('y', 290);
+            const proj = document.getElementById('projectile');
+            proj.setAttribute('x', 35);
+            proj.setAttribute('y', 290);
             document.getElementById('physics-container').classList.add('shake');
             setTimeout(() => document.getElementById('physics-container').classList.remove('shake'), 200);
-            if (attemptsLeft <= 0) fail("Koniec kokosów. Papuga wygrała tę rundę.");
+            
+            if (attemptsLeft <= 0) {
+                fail("Koniec kokosów. Papuga wygrała tę rundę.");
+            }
         }
 
         /* POZIOM 3: REFLEKS */
