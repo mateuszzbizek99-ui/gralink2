@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Tropikalna Przygoda - EDYCJA TROLLA v11</title>
+    <title>Tropikalna Przygoda v12 - EDYCJA TROLLA</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { 
@@ -40,7 +40,7 @@
         .game-screen.active { display: block; }
 
         /* Stylizacja dla Flappy Monkey */
-        #flappy-monkey { transition: transform 0.1s; }
+        #flappy-monkey { transition: transform 0.1s; pointer-events: none; }
         .pipe { position: absolute; background-color: #3f6212; border: 4px solid #1a2e05; border-radius: 8px; }
     </style>
 </head>
@@ -51,8 +51,8 @@
         <!-- HUD -->
         <div id="hud" class="hidden mb-4">
             <div class="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-yellow-200 mb-2">
-                <span id="lvl-title">Poziom 1</span>
-                <span id="timer-label">STATUS:</span>
+                <span id="lvl-title">Wyzwanie 1/4</span>
+                <span class="opacity-40">v12</span>
                 <span id="timer" class="text-lg font-mono text-red-500">--</span>
             </div>
             <div class="w-full bg-yellow-950 h-3 rounded-full border border-yellow-800 overflow-hidden">
@@ -69,14 +69,14 @@
         <div id="screen-intro" class="game-screen active">
             <div class="mb-6 text-6xl">🌴🐒🥥</div>
             <h1 class="text-4xl font-black uppercase italic mb-2 tracking-tighter text-yellow-400 jungle-font">Małpi Interes</h1>
-            <p class="text-yellow-100 text-sm mb-8">Pokonaj 4 tropikalne wyzwania. Błąd cofa Cię do korzeni! <br><span class="text-xs opacity-50 italic">Dasz radę czy jesteś zwykłym... masłem?</span></p>
-            <button onclick="initLvl1()" class="w-full bg-green-600 hover:bg-green-500 text-white font-black py-5 rounded-3xl active:scale-95 transition-all uppercase shadow-lg border-b-8 border-green-800">
+            <p class="text-yellow-100 text-sm mb-8">Pokonaj 4 losowe wyzwania. Błąd cofa Cię na start dżungli! <br><span class="text-xs opacity-50 italic">Jesteś gotów czy jesteś Masłem?</span></p>
+            <button onclick="startNewGame()" class="w-full bg-green-600 hover:bg-green-500 text-white font-black py-5 rounded-3xl active:scale-95 transition-all uppercase shadow-lg border-b-8 border-green-800">
                 WCHODZĘ W TO! 🥥
             </button>
         </div>
 
-        <!-- 1. Poziom 1: Pamięć -->
-        <div id="screen-lvl1" class="game-screen">
+        <!-- Wyzwanie: Pamięć -->
+        <div id="screen-memory" class="game-screen">
             <p class="text-sm mb-6 text-yellow-200" id="mem-msg">Małpa miesza w głowie...</p>
             <div class="grid grid-cols-2 gap-4 aspect-square">
                 <div id="pad-0" onclick="playerTap(0)" class="bg-orange-600 rounded-full h-28 flex items-center justify-center text-4xl border-b-8 border-orange-800">🥥</div>
@@ -86,8 +86,8 @@
             </div>
         </div>
 
-        <!-- 2. Poziom 2: Snajper -->
-        <div id="screen-lvl2" class="game-screen">
+        <!-- Wyzwanie: Snajper -->
+        <div id="screen-sniper" class="game-screen">
             <p class="text-xs mb-4 text-yellow-200">Zbij uciekającą małpę! Masz 5 rzutów.</p>
             <div id="physics-container" class="relative w-full aspect-square bg-sky-400 rounded-3xl border-4 border-yellow-800 overflow-hidden shadow-inner">
                 <div class="absolute bottom-0 w-full h-20 bg-green-700"></div>
@@ -100,25 +100,25 @@
             </div>
         </div>
 
-        <!-- 3. Poziom 3: Małpi Lot (Flappy Style) -->
-        <div id="screen-lvl3" class="game-screen">
+        <!-- Wyzwanie: Małpi Lot -->
+        <div id="screen-flappy" class="game-screen">
             <p class="text-xs mb-4 text-yellow-200">Tapnij, aby lecieć! Przeleć przez 10 lian.</p>
             <div id="flappy-arena" onclick="flappyJump()" class="relative w-full aspect-square bg-emerald-900 rounded-3xl border-4 border-yellow-800 overflow-hidden shadow-inner">
-                <div id="flappy-monkey" class="absolute left-10 text-3xl z-30">🐒</div>
+                <div id="flappy-monkey" class="absolute left-10 text-xl z-30">🐒</div>
             </div>
         </div>
 
-        <!-- 4. Poziom 4: Refleks -->
-        <div id="screen-lvl4" class="game-screen">
-            <p class="text-xs mb-4 text-yellow-200 uppercase font-black">ZBIERZ 15 MONET - MASZ 15 SEKUND!</p>
+        <!-- Wyzwanie: Refleks -->
+        <div id="screen-reflex" class="game-screen">
+            <p class="text-xs mb-4 text-yellow-200 uppercase font-black">ZŁAP 15 MONET - MASZ 15 SEKUND!</p>
             <div id="tap-arena" class="relative w-full aspect-square bg-orange-200 rounded-3xl border-4 border-yellow-800 overflow-hidden shadow-inner">
-                <div id="mole" onclick="moleHit()" class="absolute w-16 h-16 rounded-full hidden flex items-center justify-center text-4xl cursor-pointer">
+                <div id="mole" onclick="moleHit()" class="absolute w-20 h-20 rounded-full hidden flex items-center justify-center text-5xl cursor-pointer">
                     🪙
                 </div>
             </div>
         </div>
 
-        <!-- Sukces -->
+        <!-- Wyniki -->
         <div id="screen-win" class="game-screen py-8">
             <div class="text-yellow-400 text-6xl mb-4">🏆</div>
             <h2 class="text-2xl font-black text-yellow-400 italic mb-2 uppercase">GIGANT DŻUNGLI!</h2>
@@ -128,58 +128,104 @@
             </a>
         </div>
 
-        <!-- Litość -->
         <div id="screen-pity" class="game-screen py-8">
             <div class="text-6xl mb-4">🥴</div>
-            <h2 class="text-2xl font-black text-orange-400 italic mb-2 uppercase text-center">SKRAJNA ROZPACZ</h2>
+            <h2 class="text-2xl font-black text-orange-400 italic mb-2 uppercase text-center">MASŁO TOTALNE</h2>
             <p class="text-yellow-100 text-sm mb-6 leading-relaxed">
                 To Twoja 10. porażka. 🐒 Małpy przestały się śmiać, zaczęły Ci współczuć. To czyste, żywe Masło. <br><br>
-                Bierz ten link i udawajmy, że to spotkanie nigdy nie miało miejsca.
+                Bierz ten link i udawajmy, że to nigdy nie miało miejsca.
             </p>
             <a href="https://drive.google.com/file/d/1Khm9J8Na9T4lh5QrqpTfPqkvNQveNmTp/view?usp=sharing" class="block w-full bg-orange-600 text-white font-black py-4 rounded-2xl text-center border-b-4 border-orange-800">
                 DAWAJ LINK I ZNIKAM 🍌
             </a>
         </div>
 
-        <!-- Porażka -->
         <div id="screen-fail" class="game-screen py-8">
             <div class="text-6xl mb-4">💀</div>
             <h2 id="fail-title" class="text-2xl font-black text-red-500 italic mb-4 uppercase">MASŁO!</h2>
             <p id="fail-msg" class="text-yellow-100 text-sm mb-8">Tekst błędu</p>
-            <button onclick="initLvl1()" class="w-full bg-yellow-700 text-white font-black py-4 rounded-2xl border-b-4 border-yellow-900 active:translate-y-1 transition-all">
-                WRÓĆ NA START (PRÓBA <span id="fail-count-display">1</span>/10)
+            <button onclick="startNewGame()" class="w-full bg-yellow-700 text-white font-black py-4 rounded-2xl border-b-4 border-yellow-900 active:translate-y-1 transition-all">
+                PRÓBUJĘ OD NOWA (PRÓBA <span id="fail-count-display">1</span>/10)
             </button>
         </div>
 
     </div>
 
     <script>
+        // Logika mieszania poziomów
+        let levelQueue = ['memory', 'sniper', 'flappy', 'reflex'];
+        let currentQueueIndex = 0;
+        let totalFails = 0;
         let mainTimer;
         let gameLoop;
-        let totalFails = 0; 
-        let currentLvl = 1;
-        let sequence = [];
-        let playerSeq = [];
         let isShowingSequence = false;
         let attemptsLeft = 5;
-        let launched = false;
-        let isDragging = false;
-        let gameTime4 = 15.0; 
+        let gameTime4 = 15.0;
         let molesHit = 0;
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
 
         function show(id) {
             document.querySelectorAll('.game-screen').forEach(s => s.classList.remove('active'));
-            const target = document.getElementById(id);
+            const target = document.getElementById('screen-' + id);
             if (target) target.classList.add('active');
             
             const hud = document.getElementById('hud');
-            if(id.startsWith('screen-lvl')) hud.classList.remove('hidden');
-            else hud.classList.add('hidden');
+            if(['memory', 'sniper', 'flappy', 'reflex'].includes(id)) {
+                hud.classList.remove('hidden');
+                document.getElementById('lvl-title').innerText = `Wyzwanie ${currentQueueIndex + 1}/4`;
+            } else {
+                hud.classList.add('hidden');
+            }
             
-            document.getElementById('attempts-ui').classList.toggle('hidden', !['screen-lvl2', 'screen-lvl3'].includes(id));
-            document.getElementById('wrapper').classList.remove('shake');
+            document.getElementById('attempts-ui').classList.toggle('hidden', !['sniper', 'flappy'].includes(id));
             clearInterval(mainTimer);
             cancelAnimationFrame(gameLoop);
+            document.getElementById('wrapper').classList.remove('shake');
+        }
+
+        function startNewGame() {
+            shuffle(levelQueue);
+            currentQueueIndex = 0;
+            startLevelFromQueue();
+        }
+
+        function startLevelFromQueue() {
+            const currentLevelId = levelQueue[currentQueueIndex];
+            if (currentLevelId === 'memory') initMemory();
+            else if (currentLevelId === 'sniper') initSniper();
+            else if (currentLevelId === 'flappy') initFlappy();
+            else if (currentLevelId === 'reflex') initReflex();
+        }
+
+        function goToNextLevel() {
+            currentQueueIndex++;
+            if (currentQueueIndex >= levelQueue.length) {
+                show('win');
+            } else {
+                startLevelFromQueue();
+            }
+        }
+
+        function fail(customMsg = null) {
+            clearInterval(mainTimer);
+            cancelAnimationFrame(gameLoop);
+            totalFails++;
+            document.getElementById('fail-count-display').innerText = totalFails;
+            
+            if (totalFails >= 10) {
+                show('pity');
+                return;
+            }
+
+            const msgs = ["Maaaasło!", "Ale Masło!", "Niezłe Masło...", "Masło w palcach?", "Co za Masło!", "Totalne Masło."];
+            document.getElementById('fail-msg').innerText = customMsg || msgs[Math.floor(Math.random() * msgs.length)];
+            show('fail');
         }
 
         function notify(txt, colorClass = "text-white") {
@@ -192,39 +238,17 @@
             setTimeout(() => n.remove(), 1000);
         }
 
-        function fail(customMsg = null) {
-            cancelAnimationFrame(gameLoop);
-            clearInterval(mainTimer);
-            totalFails++;
-            document.getElementById('fail-count-display').innerText = totalFails;
-            
-            if (totalFails >= 10) {
-                show('screen-pity');
-                return;
-            }
-
-            const msgs = [
-                "Maaaasło!",
-                "To było bolesne dla moich pikseli.",
-                "Znowu startujemy. Maaaasło!",
-                "Czy Ty w ogóle patrzysz na telefon?",
-                "Maaaasło! Co to miało być?",
-                "System operacyjny: Użytkownik zbyt wolny i maślany.",
-                "Prawie! Ale wciąż... Maaaasło.",
-                "Znowu Poziom 1? To Twój limit?"
-            ];
-            document.getElementById('fail-msg').innerText = customMsg || msgs[Math.floor(Math.random() * msgs.length)];
-            show('screen-fail');
+        function updateBar(p) {
+            document.getElementById('bar').style.width = p + '%';
         }
 
-        /* POZIOM 1: PAMIĘĆ */
-        function initLvl1() {
-            currentLvl = 1;
-            show('screen-lvl1');
-            document.getElementById('lvl-title').innerText = "POZIOM 1";
+        /* WYZWANIE: PAMIĘĆ */
+        let sequence = [];
+        let playerSeq = [];
+        function initMemory() {
+            show('memory');
             document.getElementById('timer').innerText = "PAMIĘĆ";
             updateBar(0);
-            
             let isHard = Math.random() < 0.3;
             sequence = Array.from({length: isHard ? 9 : 5}, () => Math.floor(Math.random() * 4));
             playerSeq = [];
@@ -237,10 +261,8 @@
             for (let s of sequence) {
                 await new Promise(r => setTimeout(r, 600));
                 const pad = document.getElementById(`pad-${s}`);
-                if (pad) {
-                    pad.classList.add('active-pad');
-                    setTimeout(() => pad.classList.remove('active-pad'), 400);
-                }
+                pad.classList.add('active-pad');
+                setTimeout(() => pad.classList.remove('active-pad'), 400);
             }
             isShowingSequence = false;
             document.getElementById('mem-msg').innerText = "TWOJA KOLEJ!";
@@ -251,45 +273,37 @@
             const pad = document.getElementById(`pad-${i}`);
             pad.classList.add('active-pad');
             setTimeout(() => pad.classList.remove('active-pad'), 300);
-            
             playerSeq.push(i);
             if (playerSeq[playerSeq.length - 1] !== sequence[playerSeq.length - 1]) {
-                fail("Zła sekwencja! Małpa jest zawiedziona.");
+                fail("Zła sekwencja! Maaaaasło.");
                 return;
             }
             updateBar((playerSeq.length / sequence.length) * 100);
-            if (playerSeq.length === sequence.length) setTimeout(initLvl2, 800);
+            if (playerSeq.length === sequence.length) setTimeout(goToNextLevel, 800);
         }
 
-        /* POZIOM 2: SNAJPER */
-        let pPos = { x: 50, y: 280 };
-        let startPos = { x: 50, y: 280 };
-        let vel = { x: 0, y: 0 };
+        /* WYZWANIE: SNAJPER */
         let tx = 256; let ty = 64;
+        let pPos = { x: 50, y: 280 };
+        let vel = { x: 0, y: 0 };
+        let launched = false;
+        let isDragging = false;
 
-        function initLvl2() {
-            currentLvl = 2;
+        function initSniper() {
             attemptsLeft = 5;
-            launched = false;
-            isDragging = false;
             tx = 256; ty = 64;
-            show('screen-lvl2');
-            updateBar(0);
-            document.getElementById('lvl-title').innerText = "POZIOM 2";
+            show('sniper');
             document.getElementById('timer').innerText = "SNAJPER";
             document.getElementById('extra-info').innerText = `AMUNICJA: ${attemptsLeft}/5`;
-            
             resetLauncher();
             setupSlingshot();
         }
 
         function resetLauncher() {
-            launched = false;
-            isDragging = false;
+            launched = false; isDragging = false;
             pPos = { x: 50, y: 280 };
             const proj = document.getElementById('projectile');
-            proj.setAttribute('x', 35);
-            proj.setAttribute('y', 290);
+            proj.setAttribute('x', 35); proj.setAttribute('y', 290);
             document.getElementById('phys-target').setAttribute('class', 'parrot-visible');
         }
 
@@ -304,216 +318,157 @@
                 if (!isDragging || launched) return;
                 const clientX = e.touches ? e.touches[0].clientX : e.clientX;
                 const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-                const dx = (clientX - rect.left) - startPos.x;
-                const dy = (clientY - rect.top) - startPos.y;
+                const dx = (clientX - rect.left) - 50;
+                const dy = (clientY - rect.top) - 280;
                 const dist = Math.sqrt(dx*dx + dy*dy);
                 const limit = 100;
                 const scale = dist > limit ? limit/dist : 1;
-                pPos.x = startPos.x + dx * scale;
-                pPos.y = startPos.y + dy * scale;
+                pPos.x = 50 + dx * scale;
+                pPos.y = 280 + dy * scale;
                 proj.setAttribute('x', pPos.x - 15);
                 proj.setAttribute('y', pPos.y + 10);
                 line.classList.remove('hidden');
-                line.setAttribute('x2', pPos.x);
-                line.setAttribute('y2', pPos.y);
-                vel.x = (startPos.x - pPos.x) * 0.18;
-                vel.y = (startPos.y - pPos.y) * 0.18;
+                line.setAttribute('x2', pPos.x); line.setAttribute('y2', pPos.y);
+                vel.x = (50 - pPos.x) * 0.18; vel.y = (280 - pPos.y) * 0.18;
             };
 
             layer.onmousedown = () => { if(!launched) isDragging = true; };
             layer.ontouchstart = (e) => { e.preventDefault(); layer.onmousedown(); };
-            window.onmousemove = move;
-            window.ontouchmove = move;
+            window.onmousemove = move; window.ontouchmove = move;
             window.onmouseup = () => {
                 if (!isDragging || launched) return;
                 isDragging = false;
                 line.classList.add('hidden');
-                if (Math.random() < 0.3) {
-                    vel.x *= 0.3; vel.y *= 0.3;
-                    notify("CO TO ZA RZUT?! 😂", "text-orange-500");
-                }
-                launched = true;
-                attemptsLeft--;
+                launched = true; attemptsLeft--;
                 document.getElementById('extra-info').innerText = `AMUNICJA: ${attemptsLeft}/5`;
-                runSlingshotPhysics();
+                runPhysics();
             };
             window.ontouchend = window.onmouseup;
         }
 
-        function runSlingshotPhysics() {
+        function runPhysics() {
             const proj = document.getElementById('projectile');
             const target = document.getElementById('phys-target');
             let curX = pPos.x; let curY = pPos.y;
             const loop = setInterval(() => {
                 vel.y += 0.25; curX += vel.x; curY += vel.y;
                 if (curX > 80 && Math.abs(curX - tx) < 150) {
-                    let diffX = tx - curX;
-                    let diffY = ty - curY;
+                    let diffX = tx - curX; let diffY = ty - curY;
                     let dist = Math.sqrt(diffX*diffX + diffY*diffY);
                     let escapeSpeed = 6.5; 
-                    let moveX = (diffX / dist) * escapeSpeed;
-                    let moveY = (diffY / dist) * (escapeSpeed * 0.6);
-                    if (tx + moveX > 150 && tx + moveX < 310) tx += moveX;
-                    if (ty + moveY > 20 && ty + moveY < 230) ty += moveY;
+                    tx += (diffX / dist) * escapeSpeed;
+                    ty += (diffY / dist) * (escapeSpeed * 0.6);
+                    if (tx < 150) tx = 150; if (tx > 310) tx = 310;
                     target.setAttribute('x', tx); target.setAttribute('y', ty);
                 }
                 proj.setAttribute('x', curX - 15); proj.setAttribute('y', curY + 10);
                 const d = Math.sqrt(Math.pow(curX - tx, 2) + Math.pow(curY - ty, 2));
                 if (d < 35) {
                     clearInterval(loop);
-                    if (Math.random() < 0.2) {
-                        notify("PUDŁO! ODBIŁO SIĘ! 🔔", "text-yellow-400");
-                        resetLauncher();
-                        if (attemptsLeft <= 0) fail("Koniec amunicji. Maaaaasło!");
-                    } else {
-                        notify("TRAFIONY! 🎯", "text-green-500");
-                        setTimeout(initLvl3, 800);
-                    }
+                    notify("TRAFIONY! 🎯", "text-green-500");
+                    setTimeout(goToNextLevel, 800);
                     return;
                 }
                 if (curX > 400 || curY > 400 || curX < -50 || curY < -50) {
                     clearInterval(loop);
                     resetLauncher();
-                    if (attemptsLeft <= 0) fail("Koniec amunicji. Małpa wygrała.");
+                    document.getElementById('physics-container').classList.add('shake');
+                    setTimeout(() => document.getElementById('physics-container').classList.remove('shake'), 200);
+                    if (attemptsLeft <= 0) fail("Koniec amunicji. Maaaaasło!");
                 }
             }, 20);
         }
 
-        /* POZIOM 3: MAŁPI LOT (FLAPPY) */
+        /* WYZWANIE: MAŁPI LOT */
         let monkeyY, monkeyV, pipes, flappyScore;
-        const gravity = 0.25;
-        const jump = -4.5;
-
-        function initLvl3() {
-            currentLvl = 3;
-            show('screen-lvl3');
-            document.getElementById('lvl-title').innerText = "POZIOM 3";
+        function initFlappy() {
+            show('flappy');
             document.getElementById('timer').innerText = "LOT";
             updateBar(0);
-            
-            monkeyY = 150;
-            monkeyV = 0;
-            pipes = [];
-            flappyScore = 0;
+            monkeyY = 150; monkeyV = 0; pipes = []; flappyScore = 0;
             document.getElementById('extra-info').innerText = `PRZESZKODY: 0/10`;
-            
-            lastTime = 0;
             requestAnimationFrame(flappyLoop);
         }
 
-        function flappyJump() {
-            if (currentLvl === 3) monkeyV = jump;
-        }
+        function flappyJump() { monkeyV = -4.5; }
 
-        function flappyLoop(timestamp) {
-            if (currentLvl !== 3) return;
-            
+        function flappyLoop() {
+            if (!document.getElementById('screen-flappy').classList.contains('active')) return;
             const arena = document.getElementById('flappy-arena');
             const monkey = document.getElementById('flappy-monkey');
-            
-            monkeyV += gravity;
-            monkeyY += monkeyV;
+            monkeyV += 0.22; monkeyY += monkeyV;
             monkey.style.top = monkeyY + 'px';
             monkey.style.transform = `rotate(${monkeyV * 5}deg)`;
 
-            if (monkeyY < 0 || monkeyY > arena.clientHeight - 30) {
-                fail("Małpa spadła! Maaaaasło!");
-                return;
+            if (monkeyY < 0 || monkeyY > arena.clientHeight - 25) {
+                fail("Spadłeś! Maaaaasło!"); return;
             }
 
-            // Zarządzanie rurami (lianami)
-            if (pipes.length === 0 || pipes[pipes.length-1].x < 200) {
-                const gap = 110;
-                const minH = 40;
-                const topH = Math.random() * (arena.clientHeight - gap - 2 * minH) + minH;
+            if (pipes.length === 0 || pipes[pipes.length-1].x < 220) {
+                const gap = 140; // Łatwiejszy prześwit
+                const topH = Math.random() * (arena.clientHeight - gap - 80) + 40;
                 const p = {
-                    x: arena.clientWidth,
-                    topH: topH,
-                    gap: gap,
-                    passed: false,
-                    topEl: document.createElement('div'),
-                    botEl: document.createElement('div')
+                    x: arena.clientWidth, topH: topH, gap: gap, passed: false,
+                    topEl: document.createElement('div'), botEl: document.createElement('div')
                 };
-                p.topEl.className = 'pipe w-12';
-                p.botEl.className = 'pipe w-12';
-                arena.appendChild(p.topEl);
-                arena.appendChild(p.botEl);
+                p.topEl.className = 'pipe w-12'; p.botEl.className = 'pipe w-12';
+                arena.appendChild(p.topEl); arena.appendChild(p.botEl);
                 pipes.push(p);
             }
 
             for (let i = pipes.length - 1; i >= 0; i--) {
-                const p = pipes[i];
-                p.x -= 2.5;
-                
-                p.topEl.style.left = p.x + 'px';
-                p.topEl.style.top = '0px';
-                p.topEl.style.height = p.topH + 'px';
-                
-                p.botEl.style.left = p.x + 'px';
-                p.botEl.style.top = (p.topH + p.gap) + 'px';
+                const p = pipes[i]; p.x -= 2.2;
+                p.topEl.style.left = p.x + 'px'; p.topEl.style.height = p.topH + 'px';
+                p.botEl.style.left = p.x + 'px'; p.botEl.style.top = (p.topH + p.gap) + 'px';
                 p.botEl.style.height = (arena.clientHeight - p.topH - p.gap) + 'px';
 
-                // Kolizja
-                if (p.x < 10 + 30 && p.x + 48 > 10) {
-                    if (monkeyY < p.topH || monkeyY + 30 > p.topH + p.gap) {
+                if (p.x < 10 + 25 && p.x + 48 > 10) {
+                    if (monkeyY < p.topH || monkeyY + 20 > p.topH + p.gap) {
                         pipes.forEach(pp => {pp.topEl.remove(); pp.botEl.remove();});
-                        fail("Uderzyłeś w lianę! Maaaaaasło!");
-                        return;
+                        fail("Liana! Maaaaaasło!"); return;
                     }
                 }
 
                 if (p.x + 48 < 10 && !p.passed) {
-                    p.passed = true;
-                    flappyScore++;
+                    p.passed = true; flappyScore++;
                     document.getElementById('extra-info').innerText = `PRZESZKODY: ${flappyScore}/10`;
                     updateBar((flappyScore / 10) * 100);
                     if (flappyScore >= 10) {
                         pipes.forEach(pp => {pp.topEl.remove(); pp.botEl.remove();});
-                        initLvl4();
-                        return;
+                        goToNextLevel(); return;
                     }
                 }
 
-                if (p.x < -60) {
-                    p.topEl.remove();
-                    p.botEl.remove();
-                    pipes.splice(i, 1);
-                }
+                if (p.x < -60) { p.topEl.remove(); p.botEl.remove(); pipes.splice(i, 1); }
             }
             gameLoop = requestAnimationFrame(flappyLoop);
         }
 
-        /* POZIOM 4: REFLEKS (WIĘKSZE MONETY) */
-        function initLvl4() {
-            currentLvl = 4;
-            gameTime4 = 15.0; 
-            molesHit = 0;
-            show('screen-lvl4');
-            updateBar(0);
-            document.getElementById('lvl-title').innerText = "POZIOM 4";
+        /* WYZWANIE: REFLEKS */
+        function initReflex() {
+            gameTime4 = 15.0; molesHit = 0;
+            show('reflex');
             document.getElementById('timer').innerText = "REFLEKS";
-            
-            clearInterval(mainTimer);
+            updateBar(0);
             mainTimer = setInterval(() => {
                 gameTime4 -= 0.1;
                 document.getElementById('timer').innerText = gameTime4.toFixed(1) + 's';
-                if(gameTime4 <= 0) fail("Za wolno! Masło w palcach.");
+                if(gameTime4 <= 0) fail("Czas! Maaaaasło.");
             }, 100);
             spawnMole();
         }
 
         function spawnMole() {
-            if (currentLvl !== 4) return;
+            if (!document.getElementById('screen-reflex').classList.contains('active')) return;
             const mole = document.getElementById('mole');
             const arena = document.getElementById('tap-arena');
             mole.classList.remove('hidden');
             mole.style.left = Math.random() * (arena.clientWidth - 80) + 'px';
             mole.style.top = Math.random() * (arena.clientHeight - 80) + 'px';
-            
             setTimeout(() => {
                 if(!mole.classList.contains('hidden')) {
                     mole.classList.add('hidden');
-                    if(molesHit < 15 && currentLvl === 4) spawnMole();
+                    if(molesHit < 15) spawnMole();
                 }
             }, Math.max(450, 950 - (molesHit * 25)));
         }
@@ -524,14 +479,10 @@
             document.getElementById('mole').classList.add('hidden');
             if (molesHit >= 15) {
                 clearInterval(mainTimer);
-                show('screen-win');
+                goToNextLevel();
             } else {
                 spawnMole();
             }
-        }
-
-        function updateBar(p) {
-            document.getElementById('bar').style.width = p + '%';
         }
     </script>
 </body>
